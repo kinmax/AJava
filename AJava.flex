@@ -64,10 +64,10 @@ NL  = \n | \r | \r\n
 "<="   {  return Parser.LEQ; }
 ">="   {  return Parser.GEQ; }
 "!="   {  return Parser.NEQ; }
-"+="   {  return Parser.INCREMENT; }
-"-="   {  return Parser.DECREMENT; }
-"++"   {  return Parser.PLUSPLUS; }
-"--"   {  return Parser.MINUSMINUS; }
+// "+="   {  return Parser.INCREMENT; }
+// "-="   {  return Parser.DECREMENT; }
+// "++"   {  return Parser.PLUSPLUS; }
+// "--"   {  return Parser.MINUSMINUS; }
 
 "&&"   { return Parser.AND; }
 "||"   {  return Parser.OR; }
@@ -106,3 +106,4 @@ return { return Parser.RETURN; }
 \/\/.* {return "";} // to remove comments
 
 [^]    { System.err.println("Error: unexpected character '"+yytext()+"'"); return -1; }
+

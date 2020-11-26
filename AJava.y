@@ -7,22 +7,23 @@
  
 
 %token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE
-%token WHILE,TRUE, FALSE, IF, ELSE
+%token WHILE,TRUE, FALSE, CLASS, PRIVATE, 
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
 
-%right '='
+%right '=' 
 %left OR
 %left AND
-%left  '>' '<' EQ LEQ GEQ NEQ
+%left  '>' '<' EQ LEQ GEQ NEQ 
 %left '+' '-'
 %left '*' '/' '%'
 %left '!' 
 
 %type <sval> ID
-%type <sval> LIT
-%type <sval> NUM
-%type <ival> type
+%type <ival> NUM
+%type <obj> tipo
+%type <obj> exp
+
 
 
 %%
@@ -80,6 +81,31 @@
 	
  return: RETURN exp ';' ;
  
+exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
+    | exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3); }
+    | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); } 
+    | NUM         { $$ = Tp_INT; }      
+    | '(' exp ')' { $$ = $2; }
+    | ID       { TS_entry nodo = ts.pesquisa($1);
+                    if (nodo == null) {
+                       yyerror("(sem) var <" + $1 + "> nao declarada"); 
+                       $$ = Tp_ERRO;    
+                       }           
+                    else
+                        $$ = nodo.getTipo();
+                  }                   
+     | exp '=' exp  {  $$ = validaTipo(ATRIB, (TS_entry)$1, (TS_entry)$3);  } 
+     | exp '[' exp ']'  {  if ((TS_entry)$3 != Tp_INT) 
+                              yyerror("(sem) indexador não é numérico ");
+                           else 
+                               if (((TS_entry)$1).getTipo() != Tp_ARRAY)
+                                  yyerror("(sem) elemento não indexado ");
+                               else 
+                                  $$ = ((TS_entry)$1).getTipoBase();
+                         } 
+    ;
+
+
  exp: exp ob exp
  	| TRUE
 	| FALSE
