@@ -19,6 +19,7 @@
 %}
 
 NUM = [0-9]+
+NUMDOUBLE = {NUM}+ ("." {NUM}+)?
 NL  = \n | \r | \r\n
 
 %%
@@ -56,6 +57,8 @@ NL  = \n | \r | \r\n
 
 {NUM}  { yyparser.yylval = new ParserVal(yytext()); 
          return Parser.NUM; }
+{NUMDOUBLE}  { yyparser.yylval = new ParserVal(yytext()); 
+         return Parser.NUMDOUBLE; }
 
 "=="   {  return Parser.EQ; }
 "<="   {  return Parser.LEQ; }
@@ -63,7 +66,6 @@ NL  = \n | \r | \r\n
 "!="   {  return Parser.NEQ; }
 "+="   {  return Parser.INCREMENT; }
 "-="   {  return Parser.DECREMENT; }
-"//"   {  return Parser.COMMENT; }
 "++"   {  return Parser.PLUSPLUS; }
 "--"   {  return Parser.MINUSMINUS; }
 
@@ -95,11 +97,12 @@ Leia { return Parser.LEIA; }
 return { return Parser.RETURN; }
 
 
-
 [a-zA-Z]+([a-zA-Z0-9]+)? { yyparser.yylval = new ParserVal(yytext());
             return Parser.ID; }
 
 \"[^\n]+\" { yyparser.yylval = new ParserVal(yytext().substring(1, yylength() -1));
 	     return Parser.LIT; }
+
+\/\/.* {return "";} // to remove comments
 
 [^]    { System.err.println("Error: unexpected character '"+yytext()+"'"); return -1; }

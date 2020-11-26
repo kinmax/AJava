@@ -1,0 +1,1845 @@
+   0  $accept : prog $end
+
+   1  prog : lclasse
+   2       |
+
+   3  lclasse : classe lclasse
+   4          |
+
+   5  classe : CLASS ID '{' corpoclasse '}'
+
+   6  corpoclasse : PRIVATE ':' latri PUBLIC ':' lmet
+
+   7  latri : atri latri
+   8        |
+
+   9  atri : tipo ID lid ';'
+
+  10  lid : ',' ID
+  11      |
+
+  12  lmet : met lmet
+  13       |
+
+  14  met : metconst
+  15      | metmain
+  16      | metnormal
+
+  17  metconst : ID '(' lparam ')' latri '{' corpomet '}'
+
+  18  metmain : VOID MAIN '(' ')' latri '{' corpomet '}'
+
+  19  metnormal : tipo ID '(' lparam ')' latri '{' corpomet return '}'
+
+  20  metvoid : VOID ID '(' lparam ')' latri '{' corpomet '}'
+
+  21  lparam : param sublparam
+  22         |
+
+  23  param : tipo ID
+
+  24  sublparam : ',' param sublparam
+  25            |
+
+  26  return : RETURN exp ';'
+
+  27  exp : exp ob exp
+  28      | TRUE
+  29      | FALSE
+  30      | ID INCREMENT
+  31      | ID DECREMENT
+  32      | '(' exp ')'
+  33      | NUM
+  34      | NUMDOUBLE
+  35      | LIT
+  36      | chamaMetodo
+  37      | NEW ID '(' lparam ')'
+  38      | ID
+
+  39  ob : '+'
+  40     | '*'
+  41     | '-'
+  42     | '/'
+  43     | '>'
+  44     | '<'
+  45     | AND
+  46     | OR
+  47     | LEQ
+  48     | GEQ
+  49     | EQ
+  50     | NEQ
+
+  51  corpomet : lcmd
+
+  52  lcmd : cmd lcmd
+  53       |
+
+  54  cmd : atrib
+  55      | escrita
+  56      | leia
+  57      | if
+  58      | while
+  59      | for
+  60      |
+
+  61  atrib : ID '=' exp ';'
+
+  62  escrita : ESCREVA LIT contescrita ';'
+
+  63  contescrita : ',' exp
+  64              |
+
+  65  leia : LEIA ID ';'
+
+  66  if : IF exp ':' lcmd else endif
+
+  67  else : ELSE ':' lcmd
+  68       |
+
+  69  endif : ENDIF
+
+  70  lcmdloop : cmd lcmdloop
+  71           | BREAK
+  72           |
+
+  73  while : WHILE exp ':' lcmdloop endwhile
+
+  74  endwhile : ENDWHILE
+
+  75  for : FOR ID '=' exp ';' exp ';' exp ':' lcmdloop endfor
+
+  76  endfor : ENDFOR
+
+  77  chamaMetodo : ID '.' ID '(' lparam ')'
+
+  78  tipo : INT
+  79       | DOUBLE
+  80       | STRING
+  81       | BOOLEAN
+  82       | ID
+
+0: reduce/reduce conflict (reduce 2, reduce 4) on $end
+state 0
+	$accept : . prog $end  (0)
+	prog : .  (2)
+	lclasse : .  (4)
+
+	CLASS  shift 1
+	$end  reduce 2
+
+	prog  goto 2
+	lclasse  goto 3
+	classe  goto 4
+
+
+state 1
+	classe : CLASS . ID '{' corpoclasse '}'  (5)
+
+	ID  shift 5
+	.  error
+
+
+state 2
+	$accept : prog . $end  (0)
+
+	$end  accept
+
+
+state 3
+	prog : lclasse .  (1)
+
+	.  reduce 1
+
+
+state 4
+	lclasse : classe . lclasse  (3)
+	lclasse : .  (4)
+
+	CLASS  shift 1
+	$end  reduce 4
+
+	lclasse  goto 6
+	classe  goto 4
+
+
+state 5
+	classe : CLASS ID . '{' corpoclasse '}'  (5)
+
+	'{'  shift 7
+	.  error
+
+
+state 6
+	lclasse : classe lclasse .  (3)
+
+	.  reduce 3
+
+
+state 7
+	classe : CLASS ID '{' . corpoclasse '}'  (5)
+
+	PRIVATE  shift 8
+	.  error
+
+	corpoclasse  goto 9
+
+
+state 8
+	corpoclasse : PRIVATE . ':' latri PUBLIC ':' lmet  (6)
+
+	':'  shift 10
+	.  error
+
+
+state 9
+	classe : CLASS ID '{' corpoclasse . '}'  (5)
+
+	'}'  shift 11
+	.  error
+
+
+state 10
+	corpoclasse : PRIVATE ':' . latri PUBLIC ':' lmet  (6)
+	latri : .  (8)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	PUBLIC  reduce 8
+
+	latri  goto 17
+	atri  goto 18
+	tipo  goto 19
+
+
+state 11
+	classe : CLASS ID '{' corpoclasse '}' .  (5)
+
+	.  reduce 5
+
+
+state 12
+	tipo : ID .  (82)
+
+	.  reduce 82
+
+
+state 13
+	tipo : INT .  (78)
+
+	.  reduce 78
+
+
+state 14
+	tipo : DOUBLE .  (79)
+
+	.  reduce 79
+
+
+state 15
+	tipo : STRING .  (80)
+
+	.  reduce 80
+
+
+state 16
+	tipo : BOOLEAN .  (81)
+
+	.  reduce 81
+
+
+state 17
+	corpoclasse : PRIVATE ':' latri . PUBLIC ':' lmet  (6)
+
+	PUBLIC  shift 20
+	.  error
+
+
+state 18
+	latri : atri . latri  (7)
+	latri : .  (8)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'{'  reduce 8
+	PUBLIC  reduce 8
+
+	latri  goto 21
+	atri  goto 18
+	tipo  goto 19
+
+
+state 19
+	atri : tipo . ID lid ';'  (9)
+
+	ID  shift 22
+	.  error
+
+
+state 20
+	corpoclasse : PRIVATE ':' latri PUBLIC . ':' lmet  (6)
+
+	':'  shift 23
+	.  error
+
+
+state 21
+	latri : atri latri .  (7)
+
+	.  reduce 7
+
+
+state 22
+	atri : tipo ID . lid ';'  (9)
+	lid : .  (11)
+
+	','  shift 24
+	';'  reduce 11
+
+	lid  goto 25
+
+
+state 23
+	corpoclasse : PRIVATE ':' latri PUBLIC ':' . lmet  (6)
+	lmet : .  (13)
+
+	ID  shift 26
+	INT  shift 13
+	VOID  shift 27
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'}'  reduce 13
+
+	lmet  goto 28
+	tipo  goto 29
+	met  goto 30
+	metconst  goto 31
+	metmain  goto 32
+	metnormal  goto 33
+
+
+state 24
+	lid : ',' . ID  (10)
+
+	ID  shift 34
+	.  error
+
+
+state 25
+	atri : tipo ID lid . ';'  (9)
+
+	';'  shift 35
+	.  error
+
+
+state 26
+	metconst : ID . '(' lparam ')' latri '{' corpomet '}'  (17)
+	tipo : ID .  (82)
+
+	'('  shift 36
+	ID  reduce 82
+
+
+state 27
+	metmain : VOID . MAIN '(' ')' latri '{' corpomet '}'  (18)
+
+	MAIN  shift 37
+	.  error
+
+
+state 28
+	corpoclasse : PRIVATE ':' latri PUBLIC ':' lmet .  (6)
+
+	.  reduce 6
+
+
+state 29
+	metnormal : tipo . ID '(' lparam ')' latri '{' corpomet return '}'  (19)
+
+	ID  shift 38
+	.  error
+
+
+state 30
+	lmet : met . lmet  (12)
+	lmet : .  (13)
+
+	ID  shift 26
+	INT  shift 13
+	VOID  shift 27
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'}'  reduce 13
+
+	lmet  goto 39
+	tipo  goto 29
+	met  goto 30
+	metconst  goto 31
+	metmain  goto 32
+	metnormal  goto 33
+
+
+state 31
+	met : metconst .  (14)
+
+	.  reduce 14
+
+
+state 32
+	met : metmain .  (15)
+
+	.  reduce 15
+
+
+state 33
+	met : metnormal .  (16)
+
+	.  reduce 16
+
+
+state 34
+	lid : ',' ID .  (10)
+
+	.  reduce 10
+
+
+state 35
+	atri : tipo ID lid ';' .  (9)
+
+	.  reduce 9
+
+
+state 36
+	metconst : ID '(' . lparam ')' latri '{' corpomet '}'  (17)
+	lparam : .  (22)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	')'  reduce 22
+
+	tipo  goto 40
+	lparam  goto 41
+	param  goto 42
+
+
+state 37
+	metmain : VOID MAIN . '(' ')' latri '{' corpomet '}'  (18)
+
+	'('  shift 43
+	.  error
+
+
+state 38
+	metnormal : tipo ID . '(' lparam ')' latri '{' corpomet return '}'  (19)
+
+	'('  shift 44
+	.  error
+
+
+state 39
+	lmet : met lmet .  (12)
+
+	.  reduce 12
+
+
+state 40
+	param : tipo . ID  (23)
+
+	ID  shift 45
+	.  error
+
+
+state 41
+	metconst : ID '(' lparam . ')' latri '{' corpomet '}'  (17)
+
+	')'  shift 46
+	.  error
+
+
+state 42
+	lparam : param . sublparam  (21)
+	sublparam : .  (25)
+
+	','  shift 47
+	')'  reduce 25
+
+	sublparam  goto 48
+
+
+state 43
+	metmain : VOID MAIN '(' . ')' latri '{' corpomet '}'  (18)
+
+	')'  shift 49
+	.  error
+
+
+state 44
+	metnormal : tipo ID '(' . lparam ')' latri '{' corpomet return '}'  (19)
+	lparam : .  (22)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	')'  reduce 22
+
+	tipo  goto 40
+	lparam  goto 50
+	param  goto 42
+
+
+state 45
+	param : tipo ID .  (23)
+
+	.  reduce 23
+
+
+state 46
+	metconst : ID '(' lparam ')' . latri '{' corpomet '}'  (17)
+	latri : .  (8)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'{'  reduce 8
+
+	latri  goto 51
+	atri  goto 18
+	tipo  goto 19
+
+
+state 47
+	sublparam : ',' . param sublparam  (24)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	.  error
+
+	tipo  goto 40
+	param  goto 52
+
+
+state 48
+	lparam : param sublparam .  (21)
+
+	.  reduce 21
+
+
+state 49
+	metmain : VOID MAIN '(' ')' . latri '{' corpomet '}'  (18)
+	latri : .  (8)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'{'  reduce 8
+
+	latri  goto 53
+	atri  goto 18
+	tipo  goto 19
+
+
+state 50
+	metnormal : tipo ID '(' lparam . ')' latri '{' corpomet return '}'  (19)
+
+	')'  shift 54
+	.  error
+
+
+state 51
+	metconst : ID '(' lparam ')' latri . '{' corpomet '}'  (17)
+
+	'{'  shift 55
+	.  error
+
+
+state 52
+	sublparam : ',' param . sublparam  (24)
+	sublparam : .  (25)
+
+	','  shift 47
+	')'  reduce 25
+
+	sublparam  goto 56
+
+
+state 53
+	metmain : VOID MAIN '(' ')' latri . '{' corpomet '}'  (18)
+
+	'{'  shift 57
+	.  error
+
+
+state 54
+	metnormal : tipo ID '(' lparam ')' . latri '{' corpomet return '}'  (19)
+	latri : .  (8)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	'{'  reduce 8
+
+	latri  goto 58
+	atri  goto 18
+	tipo  goto 19
+
+
+55: shift/reduce conflict (shift 59, reduce 60) on ID
+55: shift/reduce conflict (shift 60, reduce 60) on IF
+55: shift/reduce conflict (shift 61, reduce 60) on WHILE
+55: reduce/reduce conflict (reduce 53, reduce 60) on '}'
+55: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+55: shift/reduce conflict (shift 63, reduce 60) on LEIA
+55: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 55
+	metconst : ID '(' lparam ')' latri '{' . corpomet '}'  (17)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	'}'  reduce 53
+
+	corpomet  goto 65
+	lcmd  goto 66
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 56
+	sublparam : ',' param sublparam .  (24)
+
+	.  reduce 24
+
+
+57: shift/reduce conflict (shift 59, reduce 60) on ID
+57: shift/reduce conflict (shift 60, reduce 60) on IF
+57: shift/reduce conflict (shift 61, reduce 60) on WHILE
+57: reduce/reduce conflict (reduce 53, reduce 60) on '}'
+57: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+57: shift/reduce conflict (shift 63, reduce 60) on LEIA
+57: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 57
+	metmain : VOID MAIN '(' ')' latri '{' . corpomet '}'  (18)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	'}'  reduce 53
+
+	corpomet  goto 74
+	lcmd  goto 66
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 58
+	metnormal : tipo ID '(' lparam ')' latri . '{' corpomet return '}'  (19)
+
+	'{'  shift 75
+	.  error
+
+
+state 59
+	atrib : ID . '=' exp ';'  (61)
+
+	'='  shift 76
+	.  error
+
+
+state 60
+	if : IF . exp ':' lcmd else endif  (66)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 85
+	chamaMetodo  goto 86
+
+
+state 61
+	while : WHILE . exp ':' lcmdloop endwhile  (73)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 87
+	chamaMetodo  goto 86
+
+
+state 62
+	escrita : ESCREVA . LIT contescrita ';'  (62)
+
+	LIT  shift 88
+	.  error
+
+
+state 63
+	leia : LEIA . ID ';'  (65)
+
+	ID  shift 89
+	.  error
+
+
+state 64
+	for : FOR . ID '=' exp ';' exp ';' exp ':' lcmdloop endfor  (75)
+
+	ID  shift 90
+	.  error
+
+
+state 65
+	metconst : ID '(' lparam ')' latri '{' corpomet . '}'  (17)
+
+	'}'  shift 91
+	.  error
+
+
+state 66
+	corpomet : lcmd .  (51)
+
+	.  reduce 51
+
+
+67: shift/reduce conflict (shift 59, reduce 60) on ID
+67: shift/reduce conflict (shift 60, reduce 60) on IF
+67: reduce/reduce conflict (reduce 53, reduce 60) on ELSE
+67: shift/reduce conflict (shift 61, reduce 60) on WHILE
+67: reduce/reduce conflict (reduce 53, reduce 60) on '}'
+67: reduce/reduce conflict (reduce 53, reduce 60) on RETURN
+67: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+67: shift/reduce conflict (shift 63, reduce 60) on LEIA
+67: reduce/reduce conflict (reduce 53, reduce 60) on ENDIF
+67: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 67
+	lcmd : cmd . lcmd  (52)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	ELSE  reduce 53
+	'}'  reduce 53
+	RETURN  reduce 53
+	ENDIF  reduce 53
+
+	lcmd  goto 92
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 68
+	cmd : atrib .  (54)
+
+	.  reduce 54
+
+
+state 69
+	cmd : escrita .  (55)
+
+	.  reduce 55
+
+
+state 70
+	cmd : leia .  (56)
+
+	.  reduce 56
+
+
+state 71
+	cmd : if .  (57)
+
+	.  reduce 57
+
+
+state 72
+	cmd : while .  (58)
+
+	.  reduce 58
+
+
+state 73
+	cmd : for .  (59)
+
+	.  reduce 59
+
+
+state 74
+	metmain : VOID MAIN '(' ')' latri '{' corpomet . '}'  (18)
+
+	'}'  shift 93
+	.  error
+
+
+75: shift/reduce conflict (shift 59, reduce 60) on ID
+75: shift/reduce conflict (shift 60, reduce 60) on IF
+75: shift/reduce conflict (shift 61, reduce 60) on WHILE
+75: reduce/reduce conflict (reduce 53, reduce 60) on RETURN
+75: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+75: shift/reduce conflict (shift 63, reduce 60) on LEIA
+75: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 75
+	metnormal : tipo ID '(' lparam ')' latri '{' . corpomet return '}'  (19)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	RETURN  reduce 53
+
+	corpomet  goto 94
+	lcmd  goto 66
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 76
+	atrib : ID '=' . exp ';'  (61)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 95
+	chamaMetodo  goto 86
+
+
+state 77
+	exp : ID . INCREMENT  (30)
+	exp : ID . DECREMENT  (31)
+	exp : ID .  (38)
+	chamaMetodo : ID . '.' ID '(' lparam ')'  (77)
+
+	INCREMENT  shift 96
+	DECREMENT  shift 97
+	'.'  shift 98
+	EQ  reduce 38
+	LEQ  reduce 38
+	GEQ  reduce 38
+	NEQ  reduce 38
+	AND  reduce 38
+	OR  reduce 38
+	'>'  reduce 38
+	'<'  reduce 38
+	'+'  reduce 38
+	'-'  reduce 38
+	'*'  reduce 38
+	'/'  reduce 38
+	':'  reduce 38
+	';'  reduce 38
+	')'  reduce 38
+
+
+state 78
+	exp : NUM .  (33)
+
+	.  reduce 33
+
+
+state 79
+	exp : LIT .  (35)
+
+	.  reduce 35
+
+
+state 80
+	exp : TRUE .  (28)
+
+	.  reduce 28
+
+
+state 81
+	exp : FALSE .  (29)
+
+	.  reduce 29
+
+
+state 82
+	exp : '(' . exp ')'  (32)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 99
+	chamaMetodo  goto 86
+
+
+state 83
+	exp : NUMDOUBLE .  (34)
+
+	.  reduce 34
+
+
+state 84
+	exp : NEW . ID '(' lparam ')'  (37)
+
+	ID  shift 100
+	.  error
+
+
+state 85
+	exp : exp . ob exp  (27)
+	if : IF exp . ':' lcmd else endif  (66)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	':'  shift 113
+	.  error
+
+	ob  goto 114
+
+
+state 86
+	exp : chamaMetodo .  (36)
+
+	.  reduce 36
+
+
+state 87
+	exp : exp . ob exp  (27)
+	while : WHILE exp . ':' lcmdloop endwhile  (73)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	':'  shift 115
+	.  error
+
+	ob  goto 114
+
+
+state 88
+	escrita : ESCREVA LIT . contescrita ';'  (62)
+	contescrita : .  (64)
+
+	','  shift 116
+	';'  reduce 64
+
+	contescrita  goto 117
+
+
+state 89
+	leia : LEIA ID . ';'  (65)
+
+	';'  shift 118
+	.  error
+
+
+state 90
+	for : FOR ID . '=' exp ';' exp ';' exp ':' lcmdloop endfor  (75)
+
+	'='  shift 119
+	.  error
+
+
+state 91
+	metconst : ID '(' lparam ')' latri '{' corpomet '}' .  (17)
+
+	.  reduce 17
+
+
+state 92
+	lcmd : cmd lcmd .  (52)
+
+	.  reduce 52
+
+
+state 93
+	metmain : VOID MAIN '(' ')' latri '{' corpomet '}' .  (18)
+
+	.  reduce 18
+
+
+state 94
+	metnormal : tipo ID '(' lparam ')' latri '{' corpomet . return '}'  (19)
+
+	RETURN  shift 120
+	.  error
+
+	return  goto 121
+
+
+state 95
+	exp : exp . ob exp  (27)
+	atrib : ID '=' exp . ';'  (61)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	';'  shift 122
+	.  error
+
+	ob  goto 114
+
+
+state 96
+	exp : ID INCREMENT .  (30)
+
+	.  reduce 30
+
+
+state 97
+	exp : ID DECREMENT .  (31)
+
+	.  reduce 31
+
+
+state 98
+	chamaMetodo : ID '.' . ID '(' lparam ')'  (77)
+
+	ID  shift 123
+	.  error
+
+
+state 99
+	exp : exp . ob exp  (27)
+	exp : '(' exp . ')'  (32)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	')'  shift 124
+	.  error
+
+	ob  goto 114
+
+
+state 100
+	exp : NEW ID . '(' lparam ')'  (37)
+
+	'('  shift 125
+	.  error
+
+
+state 101
+	ob : EQ .  (49)
+
+	.  reduce 49
+
+
+state 102
+	ob : LEQ .  (47)
+
+	.  reduce 47
+
+
+state 103
+	ob : GEQ .  (48)
+
+	.  reduce 48
+
+
+state 104
+	ob : NEQ .  (50)
+
+	.  reduce 50
+
+
+state 105
+	ob : AND .  (45)
+
+	.  reduce 45
+
+
+state 106
+	ob : OR .  (46)
+
+	.  reduce 46
+
+
+state 107
+	ob : '>' .  (43)
+
+	.  reduce 43
+
+
+state 108
+	ob : '<' .  (44)
+
+	.  reduce 44
+
+
+state 109
+	ob : '+' .  (39)
+
+	.  reduce 39
+
+
+state 110
+	ob : '-' .  (41)
+
+	.  reduce 41
+
+
+state 111
+	ob : '*' .  (40)
+
+	.  reduce 40
+
+
+state 112
+	ob : '/' .  (42)
+
+	.  reduce 42
+
+
+113: shift/reduce conflict (shift 59, reduce 60) on ID
+113: shift/reduce conflict (shift 60, reduce 60) on IF
+113: reduce/reduce conflict (reduce 53, reduce 60) on ELSE
+113: shift/reduce conflict (shift 61, reduce 60) on WHILE
+113: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+113: shift/reduce conflict (shift 63, reduce 60) on LEIA
+113: reduce/reduce conflict (reduce 53, reduce 60) on ENDIF
+113: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 113
+	if : IF exp ':' . lcmd else endif  (66)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	ELSE  reduce 53
+	ENDIF  reduce 53
+
+	lcmd  goto 126
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 114
+	exp : exp ob . exp  (27)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 127
+	chamaMetodo  goto 86
+
+
+115: shift/reduce conflict (shift 59, reduce 60) on ID
+115: shift/reduce conflict (shift 60, reduce 60) on IF
+115: shift/reduce conflict (shift 61, reduce 60) on WHILE
+115: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+115: shift/reduce conflict (shift 63, reduce 60) on LEIA
+115: shift/reduce conflict (shift 128, reduce 60) on BREAK
+115: reduce/reduce conflict (reduce 60, reduce 72) on ENDWHILE
+115: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 115
+	while : WHILE exp ':' . lcmdloop endwhile  (73)
+	cmd : .  (60)
+	lcmdloop : .  (72)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	BREAK  shift 128
+	FOR  shift 64
+	ENDWHILE  reduce 60
+
+	cmd  goto 129
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+	lcmdloop  goto 130
+
+
+state 116
+	contescrita : ',' . exp  (63)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 131
+	chamaMetodo  goto 86
+
+
+state 117
+	escrita : ESCREVA LIT contescrita . ';'  (62)
+
+	';'  shift 132
+	.  error
+
+
+state 118
+	leia : LEIA ID ';' .  (65)
+
+	.  reduce 65
+
+
+state 119
+	for : FOR ID '=' . exp ';' exp ';' exp ':' lcmdloop endfor  (75)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 133
+	chamaMetodo  goto 86
+
+
+state 120
+	return : RETURN . exp ';'  (26)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 134
+	chamaMetodo  goto 86
+
+
+state 121
+	metnormal : tipo ID '(' lparam ')' latri '{' corpomet return . '}'  (19)
+
+	'}'  shift 135
+	.  error
+
+
+state 122
+	atrib : ID '=' exp ';' .  (61)
+
+	.  reduce 61
+
+
+state 123
+	chamaMetodo : ID '.' ID . '(' lparam ')'  (77)
+
+	'('  shift 136
+	.  error
+
+
+state 124
+	exp : '(' exp ')' .  (32)
+
+	.  reduce 32
+
+
+state 125
+	exp : NEW ID '(' . lparam ')'  (37)
+	lparam : .  (22)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	')'  reduce 22
+
+	tipo  goto 40
+	lparam  goto 137
+	param  goto 42
+
+
+state 126
+	if : IF exp ':' lcmd . else endif  (66)
+	else : .  (68)
+
+	ELSE  shift 138
+	ENDIF  reduce 68
+
+	else  goto 139
+
+
+127: shift/reduce conflict (shift 101, reduce 27) on EQ
+127: shift/reduce conflict (shift 102, reduce 27) on LEQ
+127: shift/reduce conflict (shift 103, reduce 27) on GEQ
+127: shift/reduce conflict (shift 104, reduce 27) on NEQ
+127: shift/reduce conflict (shift 105, reduce 27) on AND
+127: shift/reduce conflict (shift 106, reduce 27) on OR
+127: shift/reduce conflict (shift 107, reduce 27) on '>'
+127: shift/reduce conflict (shift 108, reduce 27) on '<'
+127: shift/reduce conflict (shift 109, reduce 27) on '+'
+127: shift/reduce conflict (shift 110, reduce 27) on '-'
+127: shift/reduce conflict (shift 111, reduce 27) on '*'
+127: shift/reduce conflict (shift 112, reduce 27) on '/'
+state 127
+	exp : exp . ob exp  (27)
+	exp : exp ob exp .  (27)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	':'  reduce 27
+	';'  reduce 27
+	')'  reduce 27
+
+	ob  goto 114
+
+
+state 128
+	lcmdloop : BREAK .  (71)
+
+	.  reduce 71
+
+
+129: shift/reduce conflict (shift 59, reduce 60) on ID
+129: shift/reduce conflict (shift 60, reduce 60) on IF
+129: shift/reduce conflict (shift 61, reduce 60) on WHILE
+129: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+129: shift/reduce conflict (shift 63, reduce 60) on LEIA
+129: shift/reduce conflict (shift 128, reduce 60) on BREAK
+129: reduce/reduce conflict (reduce 60, reduce 72) on ENDWHILE
+129: shift/reduce conflict (shift 64, reduce 60) on FOR
+129: reduce/reduce conflict (reduce 60, reduce 72) on ENDFOR
+state 129
+	lcmdloop : cmd . lcmdloop  (70)
+	cmd : .  (60)
+	lcmdloop : .  (72)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	BREAK  shift 128
+	FOR  shift 64
+	ENDWHILE  reduce 60
+	ENDFOR  reduce 60
+
+	cmd  goto 129
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+	lcmdloop  goto 140
+
+
+state 130
+	while : WHILE exp ':' lcmdloop . endwhile  (73)
+
+	ENDWHILE  shift 141
+	.  error
+
+	endwhile  goto 142
+
+
+state 131
+	exp : exp . ob exp  (27)
+	contescrita : ',' exp .  (63)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	';'  reduce 63
+
+	ob  goto 114
+
+
+state 132
+	escrita : ESCREVA LIT contescrita ';' .  (62)
+
+	.  reduce 62
+
+
+state 133
+	exp : exp . ob exp  (27)
+	for : FOR ID '=' exp . ';' exp ';' exp ':' lcmdloop endfor  (75)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	';'  shift 143
+	.  error
+
+	ob  goto 114
+
+
+state 134
+	return : RETURN exp . ';'  (26)
+	exp : exp . ob exp  (27)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	';'  shift 144
+	.  error
+
+	ob  goto 114
+
+
+state 135
+	metnormal : tipo ID '(' lparam ')' latri '{' corpomet return '}' .  (19)
+
+	.  reduce 19
+
+
+state 136
+	chamaMetodo : ID '.' ID '(' . lparam ')'  (77)
+	lparam : .  (22)
+
+	ID  shift 12
+	INT  shift 13
+	DOUBLE  shift 14
+	STRING  shift 15
+	BOOLEAN  shift 16
+	')'  reduce 22
+
+	tipo  goto 40
+	lparam  goto 145
+	param  goto 42
+
+
+state 137
+	exp : NEW ID '(' lparam . ')'  (37)
+
+	')'  shift 146
+	.  error
+
+
+state 138
+	else : ELSE . ':' lcmd  (67)
+
+	':'  shift 147
+	.  error
+
+
+state 139
+	if : IF exp ':' lcmd else . endif  (66)
+
+	ENDIF  shift 148
+	.  error
+
+	endif  goto 149
+
+
+state 140
+	lcmdloop : cmd lcmdloop .  (70)
+
+	.  reduce 70
+
+
+state 141
+	endwhile : ENDWHILE .  (74)
+
+	.  reduce 74
+
+
+state 142
+	while : WHILE exp ':' lcmdloop endwhile .  (73)
+
+	.  reduce 73
+
+
+state 143
+	for : FOR ID '=' exp ';' . exp ';' exp ':' lcmdloop endfor  (75)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 150
+	chamaMetodo  goto 86
+
+
+state 144
+	return : RETURN exp ';' .  (26)
+
+	.  reduce 26
+
+
+state 145
+	chamaMetodo : ID '.' ID '(' lparam . ')'  (77)
+
+	')'  shift 151
+	.  error
+
+
+state 146
+	exp : NEW ID '(' lparam ')' .  (37)
+
+	.  reduce 37
+
+
+147: shift/reduce conflict (shift 59, reduce 60) on ID
+147: shift/reduce conflict (shift 60, reduce 60) on IF
+147: shift/reduce conflict (shift 61, reduce 60) on WHILE
+147: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+147: shift/reduce conflict (shift 63, reduce 60) on LEIA
+147: reduce/reduce conflict (reduce 53, reduce 60) on ENDIF
+147: shift/reduce conflict (shift 64, reduce 60) on FOR
+state 147
+	else : ELSE ':' . lcmd  (67)
+	lcmd : .  (53)
+	cmd : .  (60)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	FOR  shift 64
+	ENDIF  reduce 53
+
+	lcmd  goto 152
+	cmd  goto 67
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+
+
+state 148
+	endif : ENDIF .  (69)
+
+	.  reduce 69
+
+
+state 149
+	if : IF exp ':' lcmd else endif .  (66)
+
+	.  reduce 66
+
+
+state 150
+	exp : exp . ob exp  (27)
+	for : FOR ID '=' exp ';' exp . ';' exp ':' lcmdloop endfor  (75)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	';'  shift 153
+	.  error
+
+	ob  goto 114
+
+
+state 151
+	chamaMetodo : ID '.' ID '(' lparam ')' .  (77)
+
+	.  reduce 77
+
+
+state 152
+	else : ELSE ':' lcmd .  (67)
+
+	.  reduce 67
+
+
+state 153
+	for : FOR ID '=' exp ';' exp ';' . exp ':' lcmdloop endfor  (75)
+
+	ID  shift 77
+	NUM  shift 78
+	LIT  shift 79
+	TRUE  shift 80
+	FALSE  shift 81
+	'('  shift 82
+	NUMDOUBLE  shift 83
+	NEW  shift 84
+	.  error
+
+	exp  goto 154
+	chamaMetodo  goto 86
+
+
+state 154
+	exp : exp . ob exp  (27)
+	for : FOR ID '=' exp ';' exp ';' exp . ':' lcmdloop endfor  (75)
+
+	EQ  shift 101
+	LEQ  shift 102
+	GEQ  shift 103
+	NEQ  shift 104
+	AND  shift 105
+	OR  shift 106
+	'>'  shift 107
+	'<'  shift 108
+	'+'  shift 109
+	'-'  shift 110
+	'*'  shift 111
+	'/'  shift 112
+	':'  shift 155
+	.  error
+
+	ob  goto 114
+
+
+155: shift/reduce conflict (shift 59, reduce 60) on ID
+155: shift/reduce conflict (shift 60, reduce 60) on IF
+155: shift/reduce conflict (shift 61, reduce 60) on WHILE
+155: shift/reduce conflict (shift 62, reduce 60) on ESCREVA
+155: shift/reduce conflict (shift 63, reduce 60) on LEIA
+155: shift/reduce conflict (shift 128, reduce 60) on BREAK
+155: shift/reduce conflict (shift 64, reduce 60) on FOR
+155: reduce/reduce conflict (reduce 60, reduce 72) on ENDFOR
+state 155
+	for : FOR ID '=' exp ';' exp ';' exp ':' . lcmdloop endfor  (75)
+	cmd : .  (60)
+	lcmdloop : .  (72)
+
+	ID  shift 59
+	IF  shift 60
+	WHILE  shift 61
+	ESCREVA  shift 62
+	LEIA  shift 63
+	BREAK  shift 128
+	FOR  shift 64
+	ENDFOR  reduce 60
+
+	cmd  goto 129
+	atrib  goto 68
+	escrita  goto 69
+	leia  goto 70
+	if  goto 71
+	while  goto 72
+	for  goto 73
+	lcmdloop  goto 156
+
+
+state 156
+	for : FOR ID '=' exp ';' exp ';' exp ':' lcmdloop . endfor  (75)
+
+	ENDFOR  shift 157
+	.  error
+
+	endfor  goto 158
+
+
+state 157
+	endfor : ENDFOR .  (76)
+
+	.  reduce 76
+
+
+state 158
+	for : FOR ID '=' exp ';' exp ';' exp ':' lcmdloop endfor .  (75)
+
+	.  reduce 75
+
+
+Rules never reduced:
+	metvoid : VOID ID '(' lparam ')' latri '{' corpomet '}'  (20)
+	lcmdloop :  (72)
+
+
+State 0 contains 1 reduce/reduce conflict.
+State 55 contains 6 shift/reduce conflicts, 1 reduce/reduce conflict.
+State 57 contains 6 shift/reduce conflicts, 1 reduce/reduce conflict.
+State 67 contains 6 shift/reduce conflicts, 4 reduce/reduce conflicts.
+State 75 contains 6 shift/reduce conflicts, 1 reduce/reduce conflict.
+State 113 contains 6 shift/reduce conflicts, 2 reduce/reduce conflicts.
+State 115 contains 7 shift/reduce conflicts, 1 reduce/reduce conflict.
+State 127 contains 12 shift/reduce conflicts.
+State 129 contains 7 shift/reduce conflicts, 2 reduce/reduce conflicts.
+State 147 contains 6 shift/reduce conflicts, 1 reduce/reduce conflict.
+State 155 contains 7 shift/reduce conflicts, 1 reduce/reduce conflict.
+
+
+59 terminals, 37 nonterminals
+83 grammar rules, 159 states

@@ -1,0 +1,156 @@
+class Circulo{
+ private:
+ int raio;
+double cx, cy;
+ public:
+Circulo(int r, double cx, double y) {
+raio =r; cx = x; cy = y;
+ }
+double area (){
+ return 3.1415 * raio * raio;
+}
+string toString()
+ string aux;
+{		
+ aux = "circulo: raio: “+ raio +” (“+cx+”, “+cy+”)”;
+ return aux;
+}
+void main()
+Circulo c;
+{
+ c = new Circulo(10, 3.0, 4.0);
+ Escreva c.toString();
+ Escreva “Area: “, c.area();  
+}
+ }
+ 
+ 
+
+ prog: lclasse 
+ 	|
+ 
+ lclasse: classe lclasse
+ 	| 
+ 
+ 
+ classe: CLASS ID { corpoclasse }
+ 
+ 
+ corpoclasse: PRIVATE: latri PUBLIC: lmet
+ 
+ latri: atri latri 
+ 	|
+ 	
+ atri: tipo ID lid ';'
+ 
+ lid: , ID
+      | 
+ 	
+ lmet: met lmet
+ 	| 
+ 	
+ met: metconst
+ 	| metmain
+ 	| metnormal
+ 
+ metconst: ID '('lparam')' latri { corpomet }
+ 
+ metmain: VOID MAIN'('')' latri { corpomet }
+  
+ metnormal: tipo ID '('lparam')' latri { corpomet return }
+ 
+ metvoid: VOID ID '('lparam')' latri { corpomet }
+ 
+ lparam: param sublparam
+ 	|
+
+ param: tipo ID
+ 
+ sublparam: ',' param sublparam
+	|
+	
+ return: RETURN exp ';'
+ 
+ exp: exp ob exp
+ 	| TRUE
+	| FALSE
+	| ID INCREMENT
+	| ID DECREMENT
+	| '(' exp ')'
+	| NUM
+	| NUMDOUBLE
+	| LIT
+	| chamaMetodo
+	| NEW ID '(' lparam ')'
+	| ID
+	
+ 
+ ob: '+'
+    |'*'
+    |'-'
+    |'/'
+    |'>'
+    |'<'
+    |AND
+    |OR
+    |LEQ
+    |GEQ
+    |EQ
+    |NEQ
+  
+ 
+ corpomet: lcmd
+ 	
+ 	
+ lcmd: cmd lcmd
+ 	| 
+ 
+ cmd: atrib
+ 	| escrita
+ 	| leia
+ 	| if
+ 	| while
+ 	| for
+ 	| 
+ 	
+ atrib: ID '=' exp ';'
+ 
+ escrita: ESCREVA LIT contescrita ';'
+ 
+ contescrita: ',' exp
+	|
+ 
+ leia: LEIA ID ';'
+ 
+ if: IF exp ':' lcmd else endif
+ 
+ else: ELSE ':' lcmd
+ 	|
+
+ endif: ENDIF
+ 
+ lcmdloop: cmd lcmdloop
+ 	| BREAK
+ 	|
+   
+
+ while: WHILE exp ':' lcmdloop endwhile
+ 
+ endwhile: ENDWHILE
+ 
+ for: FOR ID '=' exp ';' exp ';' exp ':' lcmdloop endfor
+ 
+ endfor: ENDFOR
+ 
+ chamaMetodo: ID '.' ID '(' lparam')'
+ 
+ tipo: INT
+ 	| DOUBLE
+ 	| STRING
+ 	| BOOLEAN
+ 	| ID
+ 	
+ 
+ 
+ 
+ 		

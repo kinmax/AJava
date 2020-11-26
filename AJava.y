@@ -27,139 +27,144 @@
 
 %%
 
-prog : { geraInicio(); } dList mainF { geraAreaDados(); geraAreaLiterais(); } ;
+ prog: lclasse 
+ 	|
+	;
+ 
+ lclasse: classe lclasse
+ 	| 
+	;
+ 
+ classe: CLASS ID '{' corpoclasse '}' ;
+			
+ 
+ 
+ corpoclasse: PRIVATE ':' latri PUBLIC ':' lmet ;
+ 
+ latri: atri latri 
+ 	|
+	;
+ 	
+ atri: tipo ID lid ';' ;
+ 
+ lid: ',' ID
+      | 
+	  ;
+ 	
+ lmet: met lmet
+ 	| 
+	;
+ 	
+ met: metconst
+ 	| metmain
+ 	| metnormal
+	; 
+ 
+ metconst: ID '('lparam')' latri '{' corpomet '}' ;
+ 
+ metmain: VOID MAIN'('')' latri '{' corpomet '}' ;
+  
+ metnormal: tipo ID '('lparam')' latri '{' corpomet return '}' ;
+ 
+ metvoid: VOID ID '('lparam')' latri '{' corpomet '}' ;
+ 
+ lparam: param sublparam
+ 	|
+	;
 
-mainF : VOID MAIN '(' ')'   { System.out.println("_start:"); }
-        '{' lcmd  { geraFinal(); } '}'
-         ; 
+ param: tipo ID ;
+ 
+ sublparam: ',' param sublparam
+	|
+	;
+	
+ return: RETURN exp ';' ;
+ 
+ exp: exp ob exp
+ 	| TRUE
+	| FALSE
+	| ID INCREMENT
+	| ID DECREMENT
+	| '(' exp ')'
+	| NUM
+	| NUMDOUBLE
+	| LIT
+	| chamaMetodo
+	| NEW ID '(' lparam ')'
+	| ID
+	;
+	
+ 
+ ob: '+'
+    |'*'
+    |'-'
+    |'/'
+    |'>'
+    |'<'
+    |AND
+    |OR
+    |LEQ
+    |GEQ
+    |EQ
+    |NEQ
+	;
+  
+ 
+ corpomet: lcmd ;
+ 	
+ 	
+ lcmd: cmd lcmd ;
+ 	| 
+ 
+ cmd: atrib
+ 	| escrita
+ 	| leia
+ 	| if
+ 	| while
+ 	| for
+ 	| 
+	;
+ 	
+ atrib: ID '=' exp ';' ;
+ 
+ escrita: ESCREVA LIT contescrita ';' ;
+ 
+ contescrita: ',' exp
+	|
+	;
 
-dList : decl dList | ;
+ leia: LEIA ID ';' ;
+ 
+ if: IF exp ':' lcmd else endif ;
+ 
+ else: ELSE ':' lcmd
+ 	|
+	;
 
-decl : type ID ';' {  TS_entry nodo = ts.pesquisa($2);
-    	                if (nodo != null) 
-                            yyerror("(sem) variavel >" + $2 + "< jah declarada");
-                        else ts.insert(new TS_entry($2, $1)); }
-      ;
+ endif: ENDIF ;
+ 
+ lcmdloop: cmd lcmdloop
+ 	| BREAK
+ 	|
+	;
+   
 
-type : INT    { $$ = INT; }
-     | FLOAT  { $$ = FLOAT; }
-     | BOOL   { $$ = BOOL; }
-     ;
-
-lcmd : lcmd cmd
-	   |
-	   ;
-	   
-cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
-  						   System.out.println("\tMOVL %EDX, _"+$1);
-					     }
-			| '{' lcmd '}' { System.out.println("\t\t# terminou o bloco..."); }
-					     
-					       
-      | WRITE '(' LIT ')' ';' { strTab.add($3);
-                                System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-				System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-				System.out.println("\tCALL _writeln"); 
-                                strCount++;
-				}
-      
-	  | WRITE '(' LIT 
-                              { strTab.add($3);
-                                System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-				System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-				strCount++;
-				}
-
-                    ',' exp ')' ';' 
-			{ 
-			 System.out.println("\tPOPL %EAX"); 
-			 System.out.println("\tCALL _write");	
-			 System.out.println("\tCALL _writeln"); 
-                        }
-         
-     | READ '(' ID ')' ';'								
-								{
-									System.out.println("\tPUSHL $_"+$3);
-									System.out.println("\tCALL _read");
-									System.out.println("\tPOPL %EDX");
-									System.out.println("\tMOVL %EAX, (%EDX)");
-									
-								}
-         
-    | WHILE {
-					pRot.push(proxRot);  proxRot += 2;
-					System.out.printf("rot_%02d:\n",pRot.peek());
-				  } 
-			 '(' exp ')' {
-			 							System.out.println("\tPOPL %EAX   # desvia se falso...");
-											System.out.println("\tCMPL $0, %EAX");
-											System.out.printf("\tJE rot_%02d\n", (int)pRot.peek()+1);
-										} 
-				cmd		{
-				  		System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
-							System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
-							pRot.pop();
-							}  
-							
-			| IF '(' exp {	
-											pRot.push(proxRot);  proxRot += 2;
-															
-											System.out.println("\tPOPL %EAX");
-											System.out.println("\tCMPL $0, %EAX");
-											System.out.printf("\tJE rot_%02d\n", pRot.peek());
-										}
-								')' cmd 
-
-             restoIf {
-											System.out.printf("rot_%02d:\n",pRot.peek()+1);
-											pRot.pop();
-										}
-     ;
-     
-     
-restoIf : ELSE  {
-											System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-											System.out.printf("rot_%02d:\n",pRot.peek());
-								
-										} 							
-							cmd  
-							
-							
-		| {
-		    System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-				System.out.printf("rot_%02d:\n",pRot.peek());
-				} 
-		;										
-
-
-exp :  NUM  { System.out.println("\tPUSHL $"+$1); } 
-    |  TRUE  { System.out.println("\tPUSHL $1"); } 
-    |  FALSE  { System.out.println("\tPUSHL $0"); }      
- 		| ID   { System.out.println("\tPUSHL _"+$1); }
-    | '(' exp	')' 
-    | '!' exp       { gcExpNot(); }
-     
-		| exp '+' exp		{ gcExpArit('+'); }
-		| exp '-' exp		{ gcExpArit('-'); }
-		| exp '*' exp		{ gcExpArit('*'); }
-		| exp '/' exp		{ gcExpArit('/'); }
-		| exp '%' exp		{ gcExpArit('%'); }
-																			
-		| exp '>' exp		{ gcExpRel('>'); }
-		| exp '<' exp		{ gcExpRel('<'); }											
-		| exp EQ exp		{ gcExpRel(EQ); }											
-		| exp LEQ exp		{ gcExpRel(LEQ); }											
-		| exp GEQ exp		{ gcExpRel(GEQ); }											
-		| exp NEQ exp		{ gcExpRel(NEQ); }											
-												
-		| exp OR exp		{ gcExpLog(OR); }											
-		| exp AND exp		{ gcExpLog(AND); }											
-		
-		;							
-
-
+ while: WHILE exp ':' lcmdloop endwhile ;
+ 
+ endwhile: ENDWHILE ;
+ 
+ for: FOR ID '=' exp ';' exp ';' exp ':' lcmdloop endfor ;
+ 
+ endfor: ENDFOR ;
+ 
+ chamaMetodo: ID '.' ID '(' lparam')' ;
+ 
+ tipo: INT
+ 	| DOUBLE
+ 	| STRING
+ 	| BOOLEAN
+ 	| ID
+	;
 %%
 
   private Yylex lexer;
