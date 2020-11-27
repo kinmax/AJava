@@ -103,7 +103,7 @@ return { return Parser.RETURN; }
 \"[^\n]+\" { yyparser.yylval = new ParserVal(yytext().substring(1, yylength() -1));
 	     return Parser.LIT; }
 
-\/\/.* {return "";} // to remove comments
+\/\/(.*)  // to remove comments
 
 [^]    { System.err.println("Error: unexpected character '"+yytext()+"'"); return -1; }
 

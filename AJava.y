@@ -6,8 +6,8 @@
 %}
  
 
-%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE
-%token WHILE,TRUE, FALSE, CLASS, PRIVATE, 
+%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE, PUBLIC, RETURN, ESCREVA, LEIA, ENDIF, BREAK
+%token WHILE,TRUE, FALSE, CLASS, PRIVATE, ENDWHILE, FOR, ENDFOR, DOUBLE, STRING, BOOLEAN, NEW, NUMDOUBLE
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
 
@@ -18,18 +18,19 @@
 %left '+' '-'
 %left '*' '/' '%'
 %left '!' 
+%left '['
 
 %type <sval> ID
 %type <ival> NUM
 %type <obj> tipo
 %type <obj> exp
+%type <obj> lvalue
 
 
 
 %%
 
- prog: lclasse 
- 	|
+ prog: lclasse
 	;
  
  lclasse: classe lclasse
@@ -81,7 +82,7 @@
 	
  return: RETURN exp ';' ;
  
-exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
+exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3); }
     | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); } 
     | NUM         { $$ = Tp_INT; }      
@@ -94,7 +95,7 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                     else
                         $$ = nodo.getTipo();
                   }                   
-     | exp '=' exp  {  $$ = validaTipo(ATRIB, (TS_entry)$1, (TS_entry)$3);  } 
+     | lvalue '=' exp  {  $$ = validaTipo(ATRIB, (TS_entry)$1, (TS_entry)$3);  } 
      | exp '[' exp ']'  {  if ((TS_entry)$3 != Tp_INT) 
                               yyerror("(sem) indexador não é numérico ");
                            else 
@@ -105,36 +106,8 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                          } 
     ;
 
-
- exp: exp ob exp
- 	| TRUE
-	| FALSE
-	| ID INCREMENT
-	| ID DECREMENT
-	| '(' exp ')'
-	| NUM
-	| NUMDOUBLE
-	| LIT
-	| chamaMetodo
-	| NEW ID '(' lparam ')'
-	| ID
-	;
-	
- 
- ob: '+'
-    |'*'
-    |'-'
-    |'/'
-    |'>'
-    |'<'
-    |AND
-    |OR
-    |LEQ
-    |GEQ
-    |EQ
-    |NEQ
-	;
-  
+lvalue: ID | ID '.' ID
+;  
  
  corpomet: lcmd ;
  	
@@ -148,7 +121,6 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  	| if
  	| while
  	| for
- 	| 
 	;
  	
  atrib: ID '=' exp ';' ;
@@ -195,17 +167,23 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
 
   private Yylex lexer;
 
-  private TabSimb ts = new TabSimb();
+  private TabSimb ts;
 
-  private int strCount = 0;
-  private ArrayList<String> strTab = new ArrayList<String>();
+  public static TS_entry Tp_INT =  new TS_entry("int", null, ClasseID.TipoBase);
+  public static TS_entry Tp_DOUBLE = new TS_entry("double", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_BOOL = new TS_entry("boolean", null,  ClasseID.TipoBase);
 
-  private Stack<Integer> pRot = new Stack<Integer>();
-  private int proxRot = 1;
+  public static TS_entry Tp_ARRAY = new TS_entry("array", null,  ClasseID.TipoBase);
 
+  public static TS_entry Tp_ERRO = new TS_entry("_erro_", null,  ClasseID.TipoBase);
 
-  public static int ARRAY = 100;
+  public static final int ARRAY = 1500;
+  public static final int ATRIB = 1600;
 
+  private String currEscopo;
+  private ClasseID currClass;
+
+  private TS_entry currentType;
 
   private int yylex () {
     int yyl_return = -1;
@@ -221,12 +199,27 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
 
 
   public void yyerror (String error) {
-    System.err.println ("Error: " + error + "  linha: " + lexer.getLine());
+    //System.err.println("Erro (linha: "+ lexer.getLine() + ")\tMensagem: "+error);
+    System.err.printf("Erro (linha: %2d) \tMensagem: %s\n", lexer.getLine(), error);
   }
 
 
   public Parser(Reader r) {
     lexer = new Yylex(r, this);
+
+    ts = new TabSimb();
+
+    //
+    // não me parece que necessitem estar na TS
+    // já que criei todas como public static...
+    //
+    ts.insert(Tp_ERRO);
+    ts.insert(Tp_INT);
+    ts.insert(Tp_DOUBLE);
+    ts.insert(Tp_BOOL);
+    ts.insert(Tp_ARRAY);
+    
+
   }  
 
   public void setDebug(boolean debug) {
@@ -236,209 +229,67 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   public void listarTS() { ts.listar();}
 
   public static void main(String args[]) throws IOException {
+    System.out.println("\n\nVerificador semantico simples\n");
+    
 
     Parser yyparser;
     if ( args.length > 0 ) {
       // parse a file
       yyparser = new Parser(new FileReader(args[0]));
-      yyparser.yyparse();
-      // yyparser.listarTS();
-
     }
     else {
       // interactive mode
-      System.out.println("\n\tFormato: java Parser entrada.cmm >entrada.s\n");
+      System.out.println("[Quit with CTRL-D]");
+      System.out.print("Programa de entrada:\n");
+        yyparser = new Parser(new InputStreamReader(System.in));
     }
 
+    yyparser.yyparse();
+
+      yyparser.listarTS();
+
+      System.out.print("\n\nFeito!\n");
+    
   }
 
-							
-		void gcExpArit(int oparit) {
- 				System.out.println("\tPOPL %EBX");
-   			System.out.println("\tPOPL %EAX");
 
-   		switch (oparit) {
-     		case '+' : System.out.println("\tADDL %EBX, %EAX" ); break;
-     		case '-' : System.out.println("\tSUBL %EBX, %EAX" ); break;
-     		case '*' : System.out.println("\tIMULL %EBX, %EAX" ); break;
+   TS_entry validaTipo(int operador, TS_entry A, TS_entry B) {
+       
+         switch ( operador ) {
+              case ATRIB:
+                    if ( (A == Tp_INT && B == Tp_INT)                        ||
+                         ((A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE))) ||
+                         (A == B) )
+                         return A;
+                     else
+                         yyerror("(sem) tipos incomp. para atribuicao: "+ A.getTipoStr() + " = "+B.getTipoStr());
+                    break;
 
-    		case '/': 
-           		     System.out.println("\tMOVL $0, %EDX");
-           		     System.out.println("\tIDIVL %EBX");
-           		     break;
-     		case '%': 
-           		     System.out.println("\tMOVL $0, %EDX");
-           		     System.out.println("\tIDIVL %EBX");
-           		     System.out.println("\tMOVL %EDX, %EAX");
-           		     break;
-    		}
-   		System.out.println("\tPUSHL %EAX");
-		}
+              case '+' :
+                    if ( A == Tp_INT && B == Tp_INT)
+                          return Tp_INT;
+                    else if ( (A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE)) ||
+                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE)) ) 
+                         return Tp_DOUBLE;     
+                    else
+                        yyerror("(sem) tipos incomp. para soma: "+ A.getTipoStr() + " + "+B.getTipoStr());
+                    break;
 
-	public void gcExpRel(int oprel) {
+             case '>' :
+                     if ((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE))
+                         return Tp_BOOL;
+                      else
+                        yyerror("(sem) tipos incomp. para op relacional: "+ A.getTipoStr() + " > "+B.getTipoStr());
+                      break;
 
-    System.out.println("\tPOPL %EAX");
-    System.out.println("\tPOPL %EDX");
-    System.out.println("\tCMPL %EAX, %EDX");
-    System.out.println("\tMOVL $0, %EAX");
-    
-    switch (oprel) {
-       case '<':  			System.out.println("\tSETL  %AL"); break;
-       case '>':  			System.out.println("\tSETG  %AL"); break;
-       case Parser.EQ:  System.out.println("\tSETE  %AL"); break;
-       case Parser.GEQ: System.out.println("\tSETGE %AL"); break;
-       case Parser.LEQ: System.out.println("\tSETLE %AL"); break;
-       case Parser.NEQ: System.out.println("\tSETNE %AL"); break;
-       }
-    
-    System.out.println("\tPUSHL %EAX");
+             case AND:
+                     if (A == Tp_BOOL && B == Tp_BOOL)
+                         return Tp_BOOL;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " && "+B.getTipoStr());
+                 break;
+            }
 
-	}
-
-
-	public void gcExpLog(int oplog) {
-
-	   	System.out.println("\tPOPL %EDX");
- 		 	System.out.println("\tPOPL %EAX");
-
-  	 	System.out.println("\tCMPL $0, %EAX");
- 		  System.out.println("\tMOVL $0, %EAX");
-   		System.out.println("\tSETNE %AL");
-   		System.out.println("\tCMPL $0, %EDX");
-   		System.out.println("\tMOVL $0, %EDX");
-   		System.out.println("\tSETNE %DL");
-
-   		switch (oplog) {
-    			case Parser.OR:  System.out.println("\tORL  %EDX, %EAX");  break;
-    			case Parser.AND: System.out.println("\tANDL  %EDX, %EAX"); break;
-       }
-
-    	System.out.println("\tPUSHL %EAX");
-	}
-
-	public void gcExpNot(){
-
-  	 System.out.println("\tPOPL %EAX" );
- 	   System.out.println("	\tNEGL %EAX" );
-  	 System.out.println("	\tPUSHL %EAX");
-	}
-
-   private void geraInicio() {
-			System.out.println(".text\n\n#\t nome COMPLETO e matricula dos componentes do grupo...\n#\n"); 
-			System.out.println(".GLOBL _start\n\n");  
-   }
-
-   private void geraFinal(){
-	
-			System.out.println("\n\n");
-			System.out.println("#");
-			System.out.println("# devolve o controle para o SO (final da main)");
-			System.out.println("#");
-			System.out.println("\tmov $0, %ebx");
-			System.out.println("\tmov $1, %eax");
-			System.out.println("\tint $0x80");
-	
-			System.out.println("\n");
-			System.out.println("#");
-			System.out.println("# Funcoes da biblioteca (IO)");
-			System.out.println("#");
-			System.out.println("\n");
-			System.out.println("_writeln:");
-			System.out.println("\tMOVL $__fim_msg, %ECX");
-			System.out.println("\tDECL %ECX");
-			System.out.println("\tMOVB $10, (%ECX)");
-			System.out.println("\tMOVL $1, %EDX");
-			System.out.println("\tJMP _writeLit");
-			System.out.println("_write:");
-			System.out.println("\tMOVL $__fim_msg, %ECX");
-			System.out.println("\tMOVL $0, %EBX");
-			System.out.println("\tCMPL $0, %EAX");
-			System.out.println("\tJGE _write3");
-			System.out.println("\tNEGL %EAX");
-			System.out.println("\tMOVL $1, %EBX");
-			System.out.println("_write3:");
-			System.out.println("\tPUSHL %EBX");
-			System.out.println("\tMOVL $10, %EBX");
-			System.out.println("_divide:");
-			System.out.println("\tMOVL $0, %EDX");
-			System.out.println("\tIDIVL %EBX");
-			System.out.println("\tDECL %ECX");
-			System.out.println("\tADD $48, %DL");
-			System.out.println("\tMOVB %DL, (%ECX)");
-			System.out.println("\tCMPL $0, %EAX");
-			System.out.println("\tJNE _divide");
-			System.out.println("\tPOPL %EBX");
-			System.out.println("\tCMPL $0, %EBX");
-			System.out.println("\tJE _print");
-			System.out.println("\tDECL %ECX");
-			System.out.println("\tMOVB $'-', (%ECX)");
-			System.out.println("_print:");
-			System.out.println("\tMOVL $__fim_msg, %EDX");
-			System.out.println("\tSUBL %ECX, %EDX");
-			System.out.println("_writeLit:");
-			System.out.println("\tMOVL $1, %EBX");
-			System.out.println("\tMOVL $4, %EAX");
-			System.out.println("\tint $0x80");
-			System.out.println("\tRET");
-			System.out.println("_read:");
-			System.out.println("\tMOVL $15, %EDX");
-			System.out.println("\tMOVL $__msg, %ECX");
-			System.out.println("\tMOVL $0, %EBX");
-			System.out.println("\tMOVL $3, %EAX");
-			System.out.println("\tint $0x80");
-			System.out.println("\tMOVL $0, %EAX");
-			System.out.println("\tMOVL $0, %EBX");
-			System.out.println("\tMOVL $0, %EDX");
-			System.out.println("\tMOVL $__msg, %ECX");
-			System.out.println("\tCMPB $'-', (%ECX)");
-			System.out.println("\tJNE _reading");
-			System.out.println("\tINCL %ECX");
-			System.out.println("\tINC %BL");
-			System.out.println("_reading:");
-			System.out.println("\tMOVB (%ECX), %DL");
-			System.out.println("\tCMP $10, %DL");
-			System.out.println("\tJE _fimread");
-			System.out.println("\tSUB $48, %DL");
-			System.out.println("\tIMULL $10, %EAX");
-			System.out.println("\tADDL %EDX, %EAX");
-			System.out.println("\tINCL %ECX");
-			System.out.println("\tJMP _reading");
-			System.out.println("_fimread:");
-			System.out.println("\tCMPB $1, %BL");
-			System.out.println("\tJNE _fimread2");
-			System.out.println("\tNEGL %EAX");
-			System.out.println("_fimread2:");
-			System.out.println("\tRET");
-			System.out.println("\n");
+            return Tp_ERRO;
+           
      }
-
-     private void geraAreaDados(){
-			System.out.println("");		
-			System.out.println("#");
-			System.out.println("# area de dados");
-			System.out.println("#");
-			System.out.println(".data");
-			System.out.println("#");
-			System.out.println("# variaveis globais");
-			System.out.println("#");
-			ts.geraGlobais();	
-			System.out.println("");
-	
-    }
-
-     private void geraAreaLiterais() { 
-
-         System.out.println("#\n# area de literais\n#");
-         System.out.println("__msg:");
-	       System.out.println("\t.zero 30");
-	       System.out.println("__fim_msg:");
-	       System.out.println("\t.byte 0");
-	       System.out.println("\n");
-
-         for (int i = 0; i<strTab.size(); i++ ) {
-             System.out.println("_str_"+i+":");
-             System.out.println("\t .ascii \""+strTab.get(i)+"\""); 
-	           System.out.println("_str_"+i+"Len = . - _str_"+i);  
-	      }		
-   }
-   
