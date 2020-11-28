@@ -4,20 +4,14 @@ import java.util.Iterator;
 
 public class TabSimb
 {
-    private ArrayList<TS_entry> lista; 
-
-    private ArrayList<TS_entry> metodos;
-    private ArrayList<TS_entry> atributos;
-
-    private ArrayList<TS_entry> parametros;
-    private ArrayList<TS_entry> vars;
+    private ArrayList<TS_entry> lista;
     
     public TabSimb( )
     {
-        lista = new ArrayList<TS_entry>();
+        this.lista = new ArrayList<TS_entry>();
     }
     
-    public void insert( TS_entry nodo ) {
+    public void insert(TS_entry nodo) {
       lista.add(nodo);
     }    
     
@@ -32,6 +26,33 @@ public class TabSimb
     public TS_entry pesquisa(String umId) {
       for (TS_entry nodo : lista) {
           if (nodo.getId().equals(umId)) {
+	      return nodo;
+            }
+      }
+      return null;
+    }
+
+    public TS_entry pesquisa(String umId, ClasseID umaClasseID) {
+      for (TS_entry nodo : lista) {
+          if (nodo.getId().equals(umId) && nodo.getClasse().equals(umaClasseID)) {
+	      return nodo;
+            }
+      }
+      return null;
+    }
+
+    public TS_entry pesquisa(String umId, String escopo) {
+      for (TS_entry nodo : lista) {
+          if (nodo.getId().equals(umId) && nodo.getEscopo().equals(escopo)) {
+	      return nodo;
+            }
+      }
+      return null;
+    }
+
+    public TS_entry pesquisa(String umId, ClasseID umaClasseID, String escopo) {
+      for (TS_entry nodo : lista) {
+          if (nodo.getId().equals(umId) && nodo.getClasse().equals(umaClasseID) && nodo.getEscopo().equals(escopo)) {
 	      return nodo;
             }
       }

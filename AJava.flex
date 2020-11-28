@@ -95,6 +95,7 @@ false   { return Parser.FALSE; }
 Escreva { return Parser.ESCREVA; }
 Leia { return Parser.LEIA; }
 return { return Parser.RETURN; }
+extends {return Parser.EXTENDS}
 
 
 [a-zA-Z]+([a-zA-Z0-9]+)? { yyparser.yylval = new ParserVal(yytext());

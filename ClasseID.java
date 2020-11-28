@@ -1,4 +1,4 @@
   public enum ClasseID {
-    TipoBase, VarGlobal, NomeMetodo, NomeParam, VarLocal, NomeClasse; 
+    TipoBase, VarGlobal, Metodo, Parametro, VarLocal, Classe, Atributo; 
   }
 
