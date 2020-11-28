@@ -30,28 +30,49 @@
 
 %%
 
- prog: lclasse
+ prog: { currEscopo = "Global"; currClass = ClasseID.VarGlobal; } lclasse 
 	;
  
  lclasse: classe lclasse
  	| 
 	;
  
- classe: CLASS ID '{' corpoclasse '}' ;
+ classe: CLASS ID { classes.add((String)$2); currClass = ClasseID.NomeClasse;  
+                      TS_entry simb = ts.pesquisa($2);
+                      if(simb != null && simb.getEscopo.equals(currEscopo)) {
+                        yyerror("(sem) classe <" + $2 + "> jah declarada"); 
+                        $$ = Tp_ERRO;
+                      } else {
+                        ts.insert(new TS_entry($2, Tp_OBJETO, ClasseID.NomeClasse, currEscopo));
+                        currEscopo = (String)$2;
+                      }} '{' corpoclasse '}'  ;
 			
  
  
- corpoclasse: PRIVATE ':' latri PUBLIC ':' lmet ;
+ corpoclasse: PRIVATE ':' ldecl PUBLIC ':' lmet ;
  
- latri: atri latri 
+ ldecl: decl ldecl 
  	|
 	;
  	
- atri: tipo ID lid ';' ;
+ decl: tipo ID {  TS_entry simb = ts.pesquisa($2);
+                      if(simb != null && simb.getEscopo.equals(currEscopo)) {
+                        yyerror("(sem) classe <" + $2 + "> jah declarada"); 
+                        $$ = Tp_ERRO;
+                      } else {
+                        ts.insert(new TS_entry((String)$2, Tp_OBJETO, ClasseID.NomeClasse, currEscopo));
+                      }} lid ';' ;
  
- lid: ',' ID
+ lid: ',' ID {  TS_entry simb = ts.pesquisa($2);
+                      if(simb != null && simb.getEscopo.equals(currEscopo)) {
+                        yyerror("(sem) classe <" + $2 + "> jah declarada"); 
+                        $$ = Tp_ERRO;
+                      } else {
+                        ts.insert(new TS_entry((String)$2, Tp_OBJETO, ClasseID.NomeClasse, currEscopo));
+                      }} lid
       | 
 	  ;
+
  	
  lmet: met lmet
  	| 
@@ -60,15 +81,16 @@
  met: metconst
  	| metmain
  	| metnormal
+  | metvoid
 	; 
  
- metconst: ID '('lparam')' latri '{' corpomet '}' ;
+ metconst: ID '('lparam')' ldecl '{' corpomet '}' ;
  
- metmain: VOID MAIN'('')' latri '{' corpomet '}' ;
+ metmain: VOID MAIN'('')' ldecl '{' corpomet '}' ;
   
- metnormal: tipo ID '('lparam')' latri '{' corpomet return '}' ;
+ metnormal: tipo ID '('lparam')' ldecl '{' corpomet return '}' ;
  
- metvoid: VOID ID '('lparam')' latri '{' corpomet '}' ;
+ metvoid: VOID ID '('lparam')' ldecl '{' corpomet '}' ;
  
  lparam: param sublparam
  	|
@@ -81,11 +103,26 @@
 	;
 	
  return: RETURN exp ';' ;
+
+ 
  
 exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
-    | exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3); }
-    | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); } 
-    | NUM         { $$ = Tp_INT; }      
+    | exp '*' exp { $$ = validaTipo('*', (TS_entry)$1, (TS_entry)$3); }
+    | exp '-' exp { $$ = validaTipo('-', (TS_entry)$1, (TS_entry)$3); }
+    | exp '/' exp { $$ = validaTipo('/', (TS_entry)$1, (TS_entry)$3); }
+   	| exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3);}
+    | exp '<' exp { $$ = validaTipo('<', (TS_entry)$1, (TS_entry)$3);}
+ 	  | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); }
+    | exp OR exp  { $$ = validaTipo(OR, (TS_entry)$1, (TS_entry)$3); }
+    | exp LEQ exp { $$ = validaTipo(LEQ, (TS_entry)$1, (TS_entry)$3); }
+    | exp GEQ exp { $$ = validaTipo(GEQ, (TS_entry)$1, (TS_entry)$3); }
+    | exp EQ exp { $$ = validaTipo(EQ, (TS_entry)$1, (TS_entry)$3); }
+    | exp NEQ exp { $$ = validaTipo(NEQ, (TS_entry)$1, (TS_entry)$3); }
+    | NUM         { $$ = Tp_INT; }
+    | NUMDOUBLE         { $$ = Tp_DOUBLE; } 
+    | TRUE     { $$ = Tp_BOOLEAN; }  
+    | FALSE     { $$ = Tp_BOOLEAN; } 
+    | LIT     { $$ = Tp_LITERAL; } 
     | '(' exp ')' { $$ = $2; }
     | ID       { TS_entry nodo = ts.pesquisa($1);
                     if (nodo == null) {
@@ -96,27 +133,33 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                         $$ = nodo.getTipo();
                   }                   
      | lvalue '=' exp  {  $$ = validaTipo(ATRIB, (TS_entry)$1, (TS_entry)$3);  } 
-     | exp '[' exp ']'  {  if ((TS_entry)$3 != Tp_INT) 
-                              yyerror("(sem) indexador não é numérico ");
-                           else 
-                               if (((TS_entry)$1).getTipo() != Tp_ARRAY)
-                                  yyerror("(sem) elemento não indexado ");
-                               else 
-                                  $$ = ((TS_entry)$1).getTipoBase();
-                         } 
+     | chamaMetodo
     ;
 
-lvalue: ID | ID '.' ID
+lvalue: ID {TS_entry simb = ts.pesquisa($1);
+            if(simb == null)
+            {
+                yyerror("(sem) var <" + $1 + "> nao declarada"); 
+                $$ = Tp_ERRO; 
+            } else{
+              if(currEscopo.equals(simb.getEscopo()) {
+                return simb.getTipo();
+              } else {
+                yyerror("(sem) var <" + $1 + "> fora do escopo"); 
+                $$ = Tp_ERRO;
+              })
+            }}
 ;  
  
  corpomet: lcmd ;
  	
  	
- lcmd: cmd lcmd ;
+ lcmd: cmd lcmd 
  	| 
+  ;
  
- cmd: atrib
- 	| escrita
+ cmd:
+ 	escrita
  	| leia
  	| if
  	| while
@@ -165,15 +208,40 @@ lvalue: ID | ID '.' ID
 	;
 %%
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
   private Yylex lexer;
 
   private TabSimb ts;
 
+  private int idTs;
+  private ArrayList<String> classes;
+  private HashMap<String, String> herancas;
+  private HashMap<String, ArrayList<String>> atributos;
+  private HashMap<String, ArrayList<String>> metodos;
+  private Object currType;
+  private String currEscopo;
+  private ClasseID currClass;
+  private TS_entry currRetorno;
+  private TabSimb ts;
+  private int nroAtributos;
+  private int nroAtributosParametros;
+  private String atribs;
+  private String atribsParametros;
+
+
+
+
+
+
+
   public static TS_entry Tp_INT =  new TS_entry("int", null, ClasseID.TipoBase);
   public static TS_entry Tp_DOUBLE = new TS_entry("double", null,  ClasseID.TipoBase);
-  public static TS_entry Tp_BOOL = new TS_entry("boolean", null,  ClasseID.TipoBase);
-
-  public static TS_entry Tp_ARRAY = new TS_entry("array", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_BOOLEAN = new TS_entry("boolean", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_LITERAL = new TS_entry("literal", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_OBJETO = new TS_entry("objeto", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_VOID = new TS_entry("void", null,  ClasseID.TipoBase);
 
   public static TS_entry Tp_ERRO = new TS_entry("_erro_", null,  ClasseID.TipoBase);
 
@@ -207,17 +275,20 @@ lvalue: ID | ID '.' ID
   public Parser(Reader r) {
     lexer = new Yylex(r, this);
 
+    classes = new ArrayList<String>();
+
+    herancas = new HashMap<String, String>();
+
     ts = new TabSimb();
 
-    //
-    // não me parece que necessitem estar na TS
-    // já que criei todas como public static...
-    //
+  
     ts.insert(Tp_ERRO);
     ts.insert(Tp_INT);
     ts.insert(Tp_DOUBLE);
-    ts.insert(Tp_BOOL);
-    ts.insert(Tp_ARRAY);
+    ts.insert(Tp_BOOLEAN);
+    ts.insert(Tp_LITERAL);
+    ts.insert(Tp_OBJETO);
+    ts.insert(Tp_VOID);
     
 
   }  
@@ -259,7 +330,7 @@ lvalue: ID | ID '.' ID
               case ATRIB:
                     if ( (A == Tp_INT && B == Tp_INT)                        ||
                          ((A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE))) ||
-                         (A == B) )
+                         (A == B))
                          return A;
                      else
                          yyerror("(sem) tipos incomp. para atribuicao: "+ A.getTipoStr() + " = "+B.getTipoStr());
@@ -269,26 +340,96 @@ lvalue: ID | ID '.' ID
                     if ( A == Tp_INT && B == Tp_INT)
                           return Tp_INT;
                     else if ( (A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE)) ||
-                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE)) ) 
+                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE))) 
                          return Tp_DOUBLE;     
+                    else if (A == Tp_LITERAL || B == Tp_LITERAL)
+                        return Tp_LITERAL;
                     else
                         yyerror("(sem) tipos incomp. para soma: "+ A.getTipoStr() + " + "+B.getTipoStr());
                     break;
 
+            case '-' :
+                    if ( A == Tp_INT && B == Tp_INT)
+                          return Tp_INT;
+                    else if ( (A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE)) ||
+                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE))) 
+                         return Tp_DOUBLE;
+                    else
+                        yyerror("(sem) tipos incomp. para subtracao: "+ A.getTipoStr() + " + "+B.getTipoStr());
+                    break;
+
+            case '/' :
+                    if ( A == Tp_INT && B == Tp_INT)
+                          return Tp_INT;
+                    else if ( (A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE)) ||
+                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE))) 
+                         return Tp_DOUBLE;
+                    else
+                        yyerror("(sem) tipos incomp. para divisao: "+ A.getTipoStr() + " + "+B.getTipoStr());
+                    break;
+
+            case '*' :
+                    if ( A == Tp_INT && B == Tp_INT)
+                          return Tp_INT;
+                    else if ( (A == Tp_DOUBLE && (B == Tp_INT || B == Tp_DOUBLE)) ||
+                                            (B == Tp_DOUBLE && (A == Tp_INT || A == Tp_DOUBLE))) 
+                         return Tp_DOUBLE;
+                    else
+                        yyerror("(sem) tipos incomp. para multiplicacao: "+ A.getTipoStr() + " + "+B.getTipoStr());
+                    break;
+
              case '>' :
-                     if ((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE))
-                         return Tp_BOOL;
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL))
+                         return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op relacional: "+ A.getTipoStr() + " > "+B.getTipoStr());
                       break;
 
+            case '<' :
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL))
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op relacional: "+ A.getTipoStr() + " < "+B.getTipoStr());
+                      break;
+
              case AND:
-                     if (A == Tp_BOOL && B == Tp_BOOL)
-                         return Tp_BOOL;
+                     if (A == Tp_BOOLEAN && B == Tp_BOOLEAN)
+                         return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " && "+B.getTipoStr());
+
+              case OR:
+                     if (A == Tp_BOOLEAN && B == Tp_BOOLEAN)
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " || "+B.getTipoStr());
+
+               case EQ:
+                     if (A == B)
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " == "+B.getTipoStr());
+
+                case NEQ:
+                     if (A == B)
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " != "+B.getTipoStr());
+
+                case LEQ:
+                     if (A == B)
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " <= "+B.getTipoStr());
+
+                case GEQ:
+                     if (A == B)
+                         return Tp_BOOLEAN;
+                      else
+                        yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " >= "+B.getTipoStr());
                  break;
             }
+            
 
             return Tp_ERRO;
            

@@ -4,7 +4,13 @@ import java.util.Iterator;
 
 public class TabSimb
 {
-    private ArrayList<TS_entry> lista;
+    private ArrayList<TS_entry> lista; 
+
+    private ArrayList<TS_entry> metodos;
+    private ArrayList<TS_entry> atributos;
+
+    private ArrayList<TS_entry> parametros;
+    private ArrayList<TS_entry> vars;
     
     public TabSimb( )
     {
