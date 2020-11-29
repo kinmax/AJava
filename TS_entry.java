@@ -287,16 +287,37 @@ public class TS_entry
     
    public String toString() {
        StringBuilder aux = new StringBuilder("");
-        
-       aux.append("Id: ");
+       if(this.classe == ClasseID.Metodo) {
+          aux.append("\n\nMétodo"); 
+       }
+       aux.append("\nId: ");
        aux.append(String.format("%-10s", id));
 
        aux.append("\tClasse: ");
        aux.append(classe);
        aux.append("\tTipo: "); 
-       aux.append(tipo2str(this.tipo)); 
-       aux.append("\tEscopo: ");
-       aux.append(this.escopo); 
+       aux.append(tipo2str(this.tipo));
+       if(this.classe == ClasseID.Classe) {
+          aux.append("\n\nAtributos:\n\t");
+          for(TS_entry a: this.atributos) {
+            aux.append(a.toString());
+          }
+          aux.append("\n\nMétodos:\n\t");
+          for(TS_entry m: this.metodos) {
+            aux.append(m.toString());
+          }
+       }
+
+       if(this.classe == ClasseID.Metodo) {
+         aux.append("\n\nParâmetros:\n\t");
+         for(TS_entry p: this.parametros) {
+           aux.append(p.toString());
+         }
+         aux.append("\n\nVariáveis Locais:\n\t");
+         for(TS_entry v: this.varsLocais) {
+           aux.append(v.toString());
+         }
+      }
        
       return aux.toString();
 

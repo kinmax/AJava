@@ -26,7 +26,7 @@ class Circulo extends Forma {
             for x = 7 ; x >= 7 ; x = x + 1 :
                 a = 1;
                 if a == 5 :
-                    break;
+                    return 1;
                 else :
                     break;
                 endIf

@@ -19,7 +19,10 @@ public class TabSimb
       int cont = 0;  
       System.out.println("\n\n# Listagem da tabela de simbolos:\n");
       for (TS_entry nodo : lista) {
-          System.out.println("# " + nodo);
+          if(nodo.getClasse() == ClasseID.Classe) {
+            System.out.println("Classe: ");
+          }
+          System.out.println(nodo);
       }
     }
       

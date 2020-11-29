@@ -31,7 +31,7 @@
 
 %%
 
- prog: { currEscopo = "Global"; currClasse = ClasseID.VarGlobal; classeAtual = null; metodoAtual = null; } lclasse 
+ prog: {currClasse = ClasseID.VarGlobal; classeAtual = null; metodoAtual = null; } lclasse 
 	;
  
  lclasse: classe lclasse
@@ -149,7 +149,7 @@ arrayOuNao: '[' NUM ']' {
                                                             classeAtual.addMetodo(metodoAtual);
                                                           } else {
                                                             yyerror("(sem) método <" + $1 + "> com assinatura repetida na classe");
-                                                          }
+                                                          }  
                                                           metodoAtual = null;} ;
   
  metnormal: tipo {tipoAtual = (TS_entry)$1;} arrayMetodoOuNao ID {
@@ -159,17 +159,22 @@ arrayOuNao: '[' NUM ']' {
                     metodoAtual = new TS_entry((String)$4, tipoAtual, ClasseID.Metodo);
                     metodoAtual.setTipoBase(tipoBaseAtual);
                     currClasse = ClasseID.Metodo;
+                    nReturns = 0;
                   }
 
-            } '('lparam')' ldecl '{' corpomet return '}' {currClasse = ClasseID.Classe;
+            } '('lparam')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
                                                           if(metodoAtual != null) {
                                                             if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
                                                               classeAtual.addMetodo(metodoAtual);
                                                             } else {
-                                                              yyerror("(sem) metodo <" + $4 + "> com assinatura repetida na classe");
+                                                              yyerror("(sem) método <" + $4 + "> com assinatura repetida na classe");
                                                             }
-                                                          }                                                          
-                                                          metodoAtual = null;} ;
+                                                            if(nReturns < 1) {
+                                                              yyerror("(sem) método <" + $4 + "> sem comando de retorno");
+                                                            }
+                                                          }
+                                                                                                                  
+                                                          metodoAtual = null; nReturns = 0;} ;
  
  metvoid: VOID ID {
                   metodoAtual = new TS_entry((String)$2, Tp_VOID, ClasseID.Metodo);
@@ -222,9 +227,16 @@ arrayMetodoOuNao: '[' ']' {tipoBaseAtual = tipoAtual; tipoAtual = Tp_ARRAY;}
 	;
 	
  return: RETURN exp {
-            if((TS_entry)$2 != metodoAtual.getTipo())
+            nReturns++;
+            if(validaTipo('=', metodoAtual.getTipo(), (TS_entry)$2) == Tp_ERRO)
             {
               yyerror("(sem) tipo de retorno <" + ((TS_entry)$2).getTipoStr() + "> incompatível com metodo <" + metodoAtual.getId() + ">");
+            }
+            if(metodoAtual.getTipo() == Tp_CONSTRUTOR) {
+              yyerror("(sem) método construtor não possui return");
+            }
+            if(metodoAtual.getTipo() == Tp_VOID) {
+              yyerror("(sem) método void não possui return");
             } 
          }  ';' ;
 
@@ -297,6 +309,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  	| if
  	| while
  	| for
+  | return
 	;
  	
  atrib: ID arrayOuNao  '=' exp {
@@ -459,8 +472,6 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   private Yylex lexer;
 
   private TabSimb ts;
-
-  private String currEscopo;
   private ClasseID currClasse;
   private TS_entry classeAtual;
   private TS_entry metodoAtual;
@@ -473,6 +484,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   private TS_entry declAtual = null;
   private boolean atribuendoehArray = false;
   private TS_entry arrayAtual = null;
+  private int nReturns = 0;
   
 
 
