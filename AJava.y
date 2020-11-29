@@ -82,7 +82,7 @@ extends: EXTENDS ID {
                       }
                       else {
                           dec = new TS_entry((String)$2, (TS_entry)$1, ClasseID.VarLocal);
-                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && metodoAtual.pesquisaParametro(dec.getId()) == null) {
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null) {
                             metodoAtual.addVarLocal(dec);
                           } else {
                             yyerror("(sem) variavel <" + $2 + "> jah declarada no escopo");
@@ -260,11 +260,6 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     ;
  
  corpomet: lcmdloop ;
- 	
- 	
- lcmd: cmd lcmd 
- 	| 
-  ;
  
  cmd: atrib ';'
  	| escrita
