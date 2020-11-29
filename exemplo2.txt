@@ -10,6 +10,7 @@ class Circulo extends Forma {
     private:
         int raio, a;
         double cx, cy;
+        int raios[5];
     public:
         Circulo(int r, double x, double y) {
             raio = r; cx = x; cy = y;
@@ -21,6 +22,7 @@ class Circulo extends Forma {
 
         double area(double x) {
             x = 4;
+            raios[3] = 5;
             for x = 7 ; x >= 7 ; x = x + 1 :
                 a = 1;
                 if a == 5 :
@@ -31,6 +33,12 @@ class Circulo extends Forma {
             endFor
             /* break; */
             return x;
+        }
+
+        int[] areas()
+            int as[5];
+        {
+            return as;
         }
 
         string toString()

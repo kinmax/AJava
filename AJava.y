@@ -41,7 +41,7 @@
  classe: CLASS ID {    
                        TS_entry simb = ts.pesquisa((String)$2);
                       if(simb != null) {
-                        yyerror("(sem) classe <" + $2 + "> jah declarada");
+                        yyerror("(sem) classe <" + $2 + "> já declarada");
                       } else {
                         TS_entry classe = new TS_entry((String)$2, Tp_OBJETO, ClasseID.Classe);
                         currClasse = ClasseID.Classe;
@@ -52,7 +52,7 @@
 extends: EXTENDS ID {
                       TS_entry simb = ts.pesquisa((String)$2);
                       if(simb == null) {
-                        yyerror("(sem) classe <" + $2 + "> nao declarada");
+                        yyerror("(sem) classe <" + $2 + "> não declarada");
                       } else {
                         classeAtual.setPai(simb);
                       }
@@ -77,7 +77,7 @@ extends: EXTENDS ID {
                           if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
                             classeAtual.addAtributo(dec);
                           } else {
-                            yyerror("(sem) atributo <" + $2 + "> jah declarado no escopo");
+                            yyerror("(sem) atributo <" + $2 + "> já declarado no escopo");
                           }
                       }
                       else {
@@ -85,12 +85,25 @@ extends: EXTENDS ID {
                           if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null) {
                             metodoAtual.addVarLocal(dec);
                           } else {
-                            yyerror("(sem) variavel <" + $2 + "> jah declarada no escopo");
+                            yyerror("(sem) variável <" + $2 + "> já declarada no escopo");
                           }
                       }
+                      declAtual = dec;
                       tipoAtual = (TS_entry)$1;
                       
-                } lid ';' ;
+                } arrayOuNao  lid ';' {declAtual = null;} ;
+
+arrayOuNao: '[' NUM ']' {
+    atribuendoehArray = true;
+    if(declAtual != null) {
+      declAtual.setTipoBase(declAtual.getTipo());
+      declAtual.setTipo(Tp_ARRAY);
+      declAtual.setCapacidade($2);
+    }
+    
+  }
+  |
+  ;
  
  lid: ',' ID {        TS_entry dec;
                       if(metodoAtual == null) {
@@ -99,7 +112,7 @@ extends: EXTENDS ID {
                           if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
                             classeAtual.addAtributo(dec);
                           } else {
-                            yyerror("(sem) atributo <" + $2 + "> jah declarado no escopo");
+                            yyerror("(sem) atributo <" + $2 + "> já declarado no escopo");
                           }
                       }
                       else {
@@ -107,7 +120,7 @@ extends: EXTENDS ID {
                           if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && metodoAtual.pesquisaParametro(dec.getId()) == null) {
                             metodoAtual.addVarLocal(dec);
                           } else {
-                            yyerror("(sem) variavel <" + $2 + "> jah declarada no escopo");
+                            yyerror("(sem) variável <" + $2 + "> já declarada no escopo");
                           }
                       }} lid
       | 
@@ -135,15 +148,16 @@ extends: EXTENDS ID {
                                                           if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
                                                             classeAtual.addMetodo(metodoAtual);
                                                           } else {
-                                                            yyerror("(sem) metodo <" + $1 + "> com assinatura repetida na classe");
+                                                            yyerror("(sem) método <" + $1 + "> com assinatura repetida na classe");
                                                           }
                                                           metodoAtual = null;} ;
   
- metnormal: tipo ID {
-                  if(((String)$2).equals("main")) {
-                    yyerror("(sem) metodo main deve ser void");
+ metnormal: tipo {tipoAtual = (TS_entry)$1;} arrayMetodoOuNao ID {
+                  if(((String)$4).equals("main")) {
+                    yyerror("(sem) método main deve ser void");
                   } else {
-                    metodoAtual = new TS_entry((String)$2, (TS_entry)$1, ClasseID.Metodo);
+                    metodoAtual = new TS_entry((String)$4, tipoAtual, ClasseID.Metodo);
+                    metodoAtual.setTipoBase(tipoBaseAtual);
                     currClasse = ClasseID.Metodo;
                   }
 
@@ -152,7 +166,7 @@ extends: EXTENDS ID {
                                                             if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
                                                               classeAtual.addMetodo(metodoAtual);
                                                             } else {
-                                                              yyerror("(sem) metodo <" + $2 + "> com assinatura repetida na classe");
+                                                              yyerror("(sem) metodo <" + $4 + "> com assinatura repetida na classe");
                                                             }
                                                           }                                                          
                                                           metodoAtual = null;} ;
@@ -164,14 +178,18 @@ extends: EXTENDS ID {
             } '(' lparam ')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
                                                           if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
                                                             if(metodoAtual.getAssinatura().contains("main") && metodoAtual.getAssinatura().length() > 4) {
-                                                              yyerror("(sem) metodo main nao pode ter parametros");
+                                                              yyerror("(sem) método main nao pode ter parâmetros");
                                                             } else {
                                                               classeAtual.addMetodo(metodoAtual);
                                                             }                                                            
                                                           } else {
-                                                            yyerror("(sem) metodo <" + $2 + "> com assinatura repetida na classe");
+                                                            yyerror("(sem) método <" + $2 + "> com assinatura repetida na classe");
                                                           }
                                                           metodoAtual = null;} ;
+
+arrayMetodoOuNao: '[' ']' {tipoBaseAtual = tipoAtual; tipoAtual = Tp_ARRAY;}
+|
+;
  
  lparam: param sublparam
  	|
@@ -180,7 +198,7 @@ extends: EXTENDS ID {
  param: tipo ID {
           if(metodoAtual.parametroRepetido((String)$2))
           {
-              yyerror("(sem) parametro repetido <" + $2 + "> no metodo <" + metodoAtual.getId() + ">");
+              yyerror("(sem) parâmetro repetido <" + $2 + "> no método <" + metodoAtual.getId() + ">");
           }
           else
           {
@@ -206,7 +224,7 @@ extends: EXTENDS ID {
  return: RETURN exp {
             if((TS_entry)$2 != metodoAtual.getTipo())
             {
-              yyerror("(sem) tipo de retorno <" + ((TS_entry)$2).getTipoStr() + "> incompativel com metodo <" + metodoAtual.getId() + ">");
+              yyerror("(sem) tipo de retorno <" + ((TS_entry)$2).getTipoStr() + "> incompatível com metodo <" + metodoAtual.getId() + ">");
             } 
          }  ';' ;
 
@@ -240,15 +258,27 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                       {
                           nodo = metodoAtual.pesquisaParametro((String)$1);
                           if(nodo == null) {
-                            yyerror("(sem) var ou atributo <" + $1 + "> nao declarado ou fora do escopo");
+                            yyerror("(sem) variável ou atributo <" + $1 + "> não declarado(a) ou fora do escopo");
                             $$ = Tp_ERRO;
                           }
                       }
                   }
                   if(nodo != null) {
                     $$ = nodo.getTipo();
+                    if(nodo.getTipo() == Tp_ARRAY) {
+                      arrayAtual = nodo;
+                    }
                   }
-                }     
+                }
+     | exp '[' exp ']'  {  if ((TS_entry)$3 != Tp_INT) 
+                              yyerror("(sem) indexador não é numérico ");
+                           else 
+                               if (arrayAtual.getTipo() != Tp_ARRAY) {
+                                  System.out.println((TS_entry)$1);
+                                  yyerror("(sem) elemento não indexado "); }
+                               else 
+                                  $$ = arrayAtual.getTipoBase();
+                         } 
      | chamaMetodo { $$ = $1; }
      | NEW chamaConstrutor {if($2 != Tp_CONSTRUTOR) {
         yyerror("(sem) somente construtores podem ser chamados com new");
@@ -269,7 +299,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  	| for
 	;
  	
- atrib: ID  '=' exp {
+ atrib: ID arrayOuNao  '=' exp {
          TS_entry nodo;
           nodo = classeAtual.pesquisaAtributo((String)$1);
           if(nodo == null && metodoAtual != null)
@@ -279,13 +309,16 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
               {
                   nodo = metodoAtual.pesquisaParametro((String)$1);
                   if(nodo == null) {
-                    yyerror("(sem) var ou atributo <" + $1 + "> nao declarado ou fora do escopo");
+                    yyerror("(sem) variável ou atributo <" + $1 + "> não declarado(a) ou fora do escopo");
                   }
               }
           }
 
-          if(nodo != null) {
-            validaTipo('=', nodo.getTipo(), (TS_entry)$3);
+          if(nodo != null && nodo.getTipo() == Tp_ARRAY) {
+            validaTipo('=', nodo.getTipoBase(), (TS_entry)$4);
+          }
+          else if(nodo != null) {
+            validaTipo('=', nodo.getTipo(), (TS_entry)$4);
           }
         } ;
 
@@ -296,7 +329,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  
  contescrita: ',' exp {
    if ($2 != Tp_BOOLEAN && $2 != Tp_INT && $2 != Tp_DOUBLE && $2 != Tp_LITERAL ){
-      yyerror("tipo da expressao deve ser um tipo base: int, double, boolean ou string");}
+      yyerror("tipo da expressão deve ser um tipo base: int, double, boolean ou string");}
     }
 	|
 	;
@@ -311,7 +344,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
               {
                   nodo = metodoAtual.pesquisaParametro((String)$2);
                   if(nodo == null) {
-                    yyerror("(sem) var ou atributo <" + $2 + "> nao declarado ou fora do escopo");
+                    yyerror("(sem) variável ou atributo <" + $2 + "> não declarado(a) ou fora do escopo");
                   }
               }
           }
@@ -319,7 +352,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  
  if: IF exp {
           if((TS_entry)$2 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de IF");
+              yyerror("(sem) expressão não booleana em condição de IF");
           }
          } ':' lcmdloop else ;
  
@@ -329,13 +362,13 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
 
  while: WHILE exp {
           if((TS_entry)$2 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de WHILE");
+              yyerror("(sem) expressão não booleana em condição de WHILE");
           }
          } ':' {loopLevel++;} lcmdloop ENDWHILE {loopLevel--;} ;
  
  for: FOR atrib  ';' exp {
           if((TS_entry)$4 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de FOR");
+              yyerror("(sem) expressão não booleana em condição de FOR");
           }
          } ';' atrib ':' {loopLevel++;} lcmdloop ENDFOR {loopLevel--;} ;
 
@@ -357,7 +390,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
               {
                   nodo = metodoAtual.pesquisaParametro((String)$1);
                   if(nodo == null) {
-                    yyerror("(sem) objeto <" + $1 + "> nao declarado ou fora do escopo");
+                    yyerror("(sem) objeto <" + $1 + "> não declarado ou fora do escopo");
                     $$ = Tp_ERRO;
                   }
               }
@@ -366,15 +399,19 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
           if(nodo != null) {
             if(nodo.getTipo().getTipo() == Tp_OBJETO){
               if (nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual) == null) {
-                yyerror("(sem) a classe do objeto <" + $1 + "> nao possui o metodo <" + $3 + "> com esses parametros");
+                yyerror("(sem) a classe do objeto <" + $1 + "> não possui o método <" + $3 + "> com esses parametros");
                 $$ = Tp_ERRO;
               } else {
+                TS_entry tipoRet = nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual).getTipo();
+                if(tipoRet == Tp_ARRAY) {
+                  arrayAtual = nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual);
+                }
                 $$ = nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual).getTipo();
               }
             }
             else
             {
-              yyerror("(sem) objeto <" + $1 + "> nao eh um objeto");
+              yyerror("(sem) identificador <" + $1 + "> não é um objeto");
               $$ = Tp_ERRO;
             }
           } else {
@@ -385,15 +422,15 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  chamaConstrutor: ID {assinaturaAtual = (String)$1;} '(' lparamchamada ')' {
    TS_entry classe = ts.pesquisa($1);
    if(classe == null) {
-        yyerror("(sem) chamada de construtor <" + $1 + "> para classe nao definida");
+        yyerror("(sem) chamada de construtor <" + $1 + "> para classe não definida");
         $$ = Tp_ERRO;
    } else {
      TS_entry met = classe.pesquisaMetodoHeranca(assinaturaAtual);
      if(met == null) {
-       yyerror("(sem) construtor <" + $1 + "> com assinatura nao definida");
+       yyerror("(sem) construtor <" + $1 + "> com assinatura não definida");
         $$ = Tp_ERRO;
      } else if(met.getTipo() != Tp_CONSTRUTOR){
-       yyerror("(sem) construtor <" + $1 + "> com assinatura nao definida");
+       yyerror("(sem) construtor <" + $1 + "> com assinatura não definida");
         $$ = Tp_ERRO;
      } else {
        $$ = Tp_CONSTRUTOR;
@@ -409,7 +446,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  	| ID {
      TS_entry nodo = ts.pesquisa((String)$1);
      if(nodo == null) {
-       yyerror("(sem) tipo <" + $1 + "> nao definido");
+       yyerror("(sem) tipo <" + $1 + "> não definido");
        $$ = Tp_ERRO;
      }
      else {
@@ -428,10 +465,14 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   private TS_entry classeAtual;
   private TS_entry metodoAtual;
   private TS_entry tipoAtual;
+  private TS_entry tipoBaseAtual;
   private boolean metodoMesmoNome = false;
   private String assinaturaAtual;
   private TS_entry classeConstrutor = null;
   int loopLevel = 0;
+  private TS_entry declAtual = null;
+  private boolean atribuendoehArray = false;
+  private TS_entry arrayAtual = null;
   
 
 
@@ -445,6 +486,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   public static TS_entry Tp_OBJETO = new TS_entry("objeto", null,  ClasseID.TipoBase);
   public static TS_entry Tp_VOID = new TS_entry("void", null,  ClasseID.TipoBase);
   public static TS_entry Tp_CONSTRUTOR = new TS_entry("construtor", null,  ClasseID.TipoBase);
+  public static TS_entry Tp_ARRAY = new TS_entry("array", null,  ClasseID.TipoBase);
 
   public static TS_entry Tp_ERRO = new TS_entry("_erro_", null,  ClasseID.TipoBase);
 
@@ -487,6 +529,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     ts.insert(Tp_OBJETO);
     ts.insert(Tp_VOID);
     ts.insert(Tp_CONSTRUTOR);
+    ts.insert(Tp_ARRAY);
     
 
   }  

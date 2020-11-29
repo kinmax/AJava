@@ -20,6 +20,8 @@ public class TS_entry
    private TS_entry classeDona; // se for método
    private TS_entry tipoClasse; // se for um objeto de alguma classe ou método que retorna um objeto de alguma classe
    private String assinatura; // para metodos
+   private TS_entry tipoBase; // para arrays
+   private int capacidade; // para arrays
 
    // construtor geral
    public TS_entry(String umId, TS_entry umTipo, ClasseID umaClasse, String umEscopo) {      
@@ -35,6 +37,8 @@ public class TS_entry
       this.classePai = null;
       this.classeDona = null;
       this.tipoClasse = null;
+      this.tipoBase = null;
+      this.capacidade = 0;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -58,6 +62,8 @@ public class TS_entry
       this.classePai = null;
       this.classeDona = null;
       this.tipoClasse = null;
+      this.tipoBase = null;
+      this.capacidade = 0;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -82,6 +88,8 @@ public class TS_entry
       this.metodos = null;
       this.atributos = null;
       this.classePai = pai;
+      this.tipoBase = null;
+      this.capacidade = 0;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -106,6 +114,18 @@ public class TS_entry
        return tipo; 
    }
 
+   public void setTipo(TS_entry tp) {
+      this.tipo = tp;
+   }
+
+   public int getCapacidade() {
+      return this.capacidade;
+   }
+
+   public void setCapacidade(int cap) {
+      this.capacidade = cap;
+   }
+
    public ClasseID getClasse() {
       return classe;
    }
@@ -116,6 +136,14 @@ public class TS_entry
 
    public void setPai(TS_entry pai) {
       this.classePai = pai;
+   }
+
+   public TS_entry getTipoBase() {
+      return this.tipoBase;
+   }
+
+   public void setTipoBase(TS_entry tb) {
+      this.tipoBase = tb;
    }
 
    public TS_entry getClasseDona() {
@@ -286,6 +314,7 @@ public class TS_entry
       else if (tipo==Parser.Tp_LITERAL)  return "literal";
       else if (tipo==Parser.Tp_OBJETO)  return "objeto";
       else if (tipo==Parser.Tp_VOID)  return "void";
+      else if (tipo==Parser.Tp_ARRAY)  return "array";
       // else if (tipo.getTipo() != null) return  String.format("array(%d,%s)",
       //                                              tipo.nroElementos, 
       //                                                 tipo2str(tipo.tipoBase));

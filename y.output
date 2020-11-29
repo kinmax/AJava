@@ -21,137 +21,146 @@
 
   12  $$3 :
 
-  13  decl : tipo ID $$3 lid ';'
+  13  decl : tipo ID $$3 arrayOuNao lid ';'
 
-  14  $$4 :
+  14  arrayOuNao : '[' NUM ']'
+  15             |
 
-  15  lid : ',' ID $$4 lid
-  16      |
+  16  $$4 :
 
-  17  lmet : met lmet
-  18       |
+  17  lid : ',' ID $$4 lid
+  18      |
 
-  19  met : metconst
-  20      | metnormal
-  21      | metvoid
+  19  lmet : met lmet
+  20       |
 
-  22  $$5 :
+  21  met : metconst
+  22      | metnormal
+  23      | metvoid
 
-  23  metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet '}'
+  24  $$5 :
 
-  24  $$6 :
+  25  metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet '}'
 
-  25  metnormal : tipo ID $$6 '(' lparam ')' ldecl '{' corpomet return '}'
+  26  $$6 :
 
-  26  $$7 :
+  27  $$7 :
 
-  27  metvoid : VOID ID $$7 '(' lparam ')' ldecl '{' corpomet '}'
+  28  metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet return '}'
 
-  28  lparam : param sublparam
-  29         |
+  29  $$8 :
 
-  30  param : tipo ID
+  30  metvoid : VOID ID $$8 '(' lparam ')' ldecl '{' corpomet '}'
 
-  31  sublparam : ',' param sublparam
-  32            |
+  31  arrayMetodoOuNao : '[' ']'
+  32                   |
 
-  33  $$8 :
+  33  lparam : param sublparam
+  34         |
 
-  34  lparamchamada : exp $$8 sublparamchamada
-  35                |
+  35  param : tipo ID
 
-  36  $$9 :
+  36  sublparam : ',' param sublparam
+  37            |
 
-  37  sublparamchamada : ',' exp $$9 sublparamchamada
-  38                   |
+  38  $$9 :
 
-  39  $$10 :
+  39  lparamchamada : exp $$9 sublparamchamada
+  40                |
 
-  40  return : RETURN exp $$10 ';'
+  41  $$10 :
 
-  41  exp : exp '+' exp
-  42      | exp '*' exp
-  43      | exp '-' exp
-  44      | exp '/' exp
-  45      | exp '>' exp
-  46      | exp '<' exp
-  47      | exp '%' exp
-  48      | exp AND exp
-  49      | exp OR exp
-  50      | exp LEQ exp
-  51      | exp GEQ exp
-  52      | exp EQ exp
-  53      | exp NEQ exp
-  54      | NUM
-  55      | NUMDOUBLE
-  56      | TRUE
-  57      | FALSE
-  58      | LIT
-  59      | '(' exp ')'
-  60      | ID
-  61      | chamaMetodo
-  62      | NEW chamaConstrutor
+  42  sublparamchamada : ',' exp $$10 sublparamchamada
+  43                   |
 
-  63  corpomet : lcmdloop
+  44  $$11 :
 
-  64  cmd : atrib ';'
-  65      | escrita
-  66      | leia
-  67      | if
-  68      | while
-  69      | for
+  45  return : RETURN exp $$11 ';'
 
-  70  atrib : ID '=' exp
+  46  exp : exp '+' exp
+  47      | exp '*' exp
+  48      | exp '-' exp
+  49      | exp '/' exp
+  50      | exp '>' exp
+  51      | exp '<' exp
+  52      | exp '%' exp
+  53      | exp AND exp
+  54      | exp OR exp
+  55      | exp LEQ exp
+  56      | exp GEQ exp
+  57      | exp EQ exp
+  58      | exp NEQ exp
+  59      | NUM
+  60      | NUMDOUBLE
+  61      | TRUE
+  62      | FALSE
+  63      | LIT
+  64      | '(' exp ')'
+  65      | ID
+  66      | exp '[' exp ']'
+  67      | chamaMetodo
+  68      | NEW chamaConstrutor
 
-  71  escrita : ESCREVA restoEscrita
+  69  corpomet : lcmdloop
 
-  72  restoEscrita : exp contescrita ';'
+  70  cmd : atrib ';'
+  71      | escrita
+  72      | leia
+  73      | if
+  74      | while
+  75      | for
 
-  73  contescrita : ',' exp
-  74              |
+  76  atrib : ID arrayOuNao '=' exp
 
-  75  $$11 :
+  77  escrita : ESCREVA restoEscrita
 
-  76  leia : LEIA ID $$11 ';'
+  78  restoEscrita : exp contescrita ';'
 
-  77  $$12 :
+  79  contescrita : ',' exp
+  80              |
 
-  78  if : IF exp $$12 ':' lcmdloop else
+  81  $$12 :
 
-  79  else : ELSE ':' lcmdloop ENDIF
-  80       | ENDIF
+  82  leia : LEIA ID $$12 ';'
 
-  81  $$13 :
+  83  $$13 :
 
-  82  $$14 :
+  84  if : IF exp $$13 ':' lcmdloop else
 
-  83  while : WHILE exp $$13 ':' $$14 lcmdloop ENDWHILE
+  85  else : ELSE ':' lcmdloop ENDIF
+  86       | ENDIF
 
-  84  $$15 :
+  87  $$14 :
 
-  85  $$16 :
+  88  $$15 :
 
-  86  for : FOR atrib ';' exp $$15 ';' atrib ':' $$16 lcmdloop ENDFOR
+  89  while : WHILE exp $$14 ':' $$15 lcmdloop ENDWHILE
 
-  87  break : BREAK ';'
-
-  88  lcmdloop : cmd lcmdloop
-  89           | break lcmdloop
-  90           |
+  90  $$16 :
 
   91  $$17 :
 
-  92  chamaMetodo : ID '.' ID $$17 '(' lparamchamada ')'
+  92  for : FOR atrib ';' exp $$16 ';' atrib ':' $$17 lcmdloop ENDFOR
 
-  93  $$18 :
+  93  break : BREAK ';'
 
-  94  chamaConstrutor : ID $$18 '(' lparamchamada ')'
+  94  lcmdloop : cmd lcmdloop
+  95           | break lcmdloop
+  96           |
 
-  95  tipo : INT
-  96       | DOUBLE
-  97       | STRING
-  98       | BOOLEAN
-  99       | ID
+  97  $$18 :
+
+  98  chamaMetodo : ID '.' ID $$18 '(' lparamchamada ')'
+
+  99  $$19 :
+
+ 100  chamaConstrutor : ID $$19 '(' lparamchamada ')'
+
+ 101  tipo : INT
+ 102       | DOUBLE
+ 103       | STRING
+ 104       | BOOLEAN
+ 105       | ID
 
 state 0
 	$accept : . prog $end  (0)
@@ -295,37 +304,37 @@ state 16
 
 
 state 17
-	tipo : ID .  (99)
+	tipo : ID .  (105)
 
-	.  reduce 99
+	.  reduce 105
 
 
 state 18
-	tipo : INT .  (95)
+	tipo : INT .  (101)
 
-	.  reduce 95
+	.  reduce 101
 
 
 state 19
-	tipo : DOUBLE .  (96)
+	tipo : DOUBLE .  (102)
 
-	.  reduce 96
+	.  reduce 102
 
 
 state 20
-	tipo : STRING .  (97)
+	tipo : STRING .  (103)
 
-	.  reduce 97
+	.  reduce 103
 
 
 state 21
-	tipo : BOOLEAN .  (98)
+	tipo : BOOLEAN .  (104)
 
-	.  reduce 98
+	.  reduce 104
 
 
 state 22
-	decl : tipo . ID $$3 lid ';'  (13)
+	decl : tipo . ID $$3 arrayOuNao lid ';'  (13)
 
 	ID  shift 25
 	.  error
@@ -356,7 +365,7 @@ state 24
 
 
 state 25
-	decl : tipo ID . $$3 lid ';'  (13)
+	decl : tipo ID . $$3 arrayOuNao lid ';'  (13)
 	$$3 : .  (12)
 
 	.  reduce 12
@@ -378,18 +387,19 @@ state 27
 
 
 state 28
-	decl : tipo ID $$3 . lid ';'  (13)
-	lid : .  (16)
+	decl : tipo ID $$3 . arrayOuNao lid ';'  (13)
+	arrayOuNao : .  (15)
 
-	','  shift 30
-	';'  reduce 16
+	'['  shift 30
+	';'  reduce 15
+	','  reduce 15
 
-	lid  goto 31
+	arrayOuNao  goto 31
 
 
 state 29
 	corpoclasse : PRIVATE ':' ldecl PUBLIC ':' . lmet  (9)
-	lmet : .  (18)
+	lmet : .  (20)
 
 	ID  shift 32
 	INT  shift 18
@@ -397,7 +407,7 @@ state 29
 	DOUBLE  shift 19
 	STRING  shift 20
 	BOOLEAN  shift 21
-	'}'  reduce 18
+	'}'  reduce 20
 
 	tipo  goto 34
 	lmet  goto 35
@@ -408,42 +418,48 @@ state 29
 
 
 state 30
-	lid : ',' . ID $$4 lid  (15)
+	arrayOuNao : '[' . NUM ']'  (14)
 
-	ID  shift 40
+	NUM  shift 40
 	.  error
 
 
 state 31
-	decl : tipo ID $$3 lid . ';'  (13)
+	decl : tipo ID $$3 arrayOuNao . lid ';'  (13)
+	lid : .  (18)
 
-	';'  shift 41
-	.  error
+	','  shift 41
+	';'  reduce 18
+
+	lid  goto 42
 
 
 state 32
-	metconst : ID . $$5 '(' lparam ')' ldecl '{' corpomet '}'  (23)
-	tipo : ID .  (99)
-	$$5 : .  (22)
+	metconst : ID . $$5 '(' lparam ')' ldecl '{' corpomet '}'  (25)
+	tipo : ID .  (105)
+	$$5 : .  (24)
 
-	ID  reduce 99
-	'('  reduce 22
+	ID  reduce 105
+	'['  reduce 105
+	'('  reduce 24
 
-	$$5  goto 42
+	$$5  goto 43
 
 
 state 33
-	metvoid : VOID . ID $$7 '(' lparam ')' ldecl '{' corpomet '}'  (27)
+	metvoid : VOID . ID $$8 '(' lparam ')' ldecl '{' corpomet '}'  (30)
 
-	ID  shift 43
+	ID  shift 44
 	.  error
 
 
 state 34
-	metnormal : tipo . ID $$6 '(' lparam ')' ldecl '{' corpomet return '}'  (25)
+	metnormal : tipo . $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet return '}'  (28)
+	$$6 : .  (26)
 
-	ID  shift 44
-	.  error
+	.  reduce 26
+
+	$$6  goto 45
 
 
 state 35
@@ -453,8 +469,8 @@ state 35
 
 
 state 36
-	lmet : met . lmet  (17)
-	lmet : .  (18)
+	lmet : met . lmet  (19)
+	lmet : .  (20)
 
 	ID  shift 32
 	INT  shift 18
@@ -462,10 +478,10 @@ state 36
 	DOUBLE  shift 19
 	STRING  shift 20
 	BOOLEAN  shift 21
-	'}'  reduce 18
+	'}'  reduce 20
 
 	tipo  goto 34
-	lmet  goto 45
+	lmet  goto 46
 	met  goto 36
 	metconst  goto 37
 	metnormal  goto 38
@@ -473,246 +489,213 @@ state 36
 
 
 state 37
-	met : metconst .  (19)
-
-	.  reduce 19
-
-
-state 38
-	met : metnormal .  (20)
-
-	.  reduce 20
-
-
-state 39
-	met : metvoid .  (21)
+	met : metconst .  (21)
 
 	.  reduce 21
 
 
+state 38
+	met : metnormal .  (22)
+
+	.  reduce 22
+
+
+state 39
+	met : metvoid .  (23)
+
+	.  reduce 23
+
+
 state 40
-	lid : ',' ID . $$4 lid  (15)
-	$$4 : .  (14)
+	arrayOuNao : '[' NUM . ']'  (14)
 
-	.  reduce 14
-
-	$$4  goto 46
+	']'  shift 47
+	.  error
 
 
 state 41
-	decl : tipo ID $$3 lid ';' .  (13)
+	lid : ',' . ID $$4 lid  (17)
 
-	.  reduce 13
+	ID  shift 48
+	.  error
 
 
 state 42
-	metconst : ID $$5 . '(' lparam ')' ldecl '{' corpomet '}'  (23)
+	decl : tipo ID $$3 arrayOuNao lid . ';'  (13)
 
-	'('  shift 47
+	';'  shift 49
 	.  error
 
 
 state 43
-	metvoid : VOID ID . $$7 '(' lparam ')' ldecl '{' corpomet '}'  (27)
-	$$7 : .  (26)
+	metconst : ID $$5 . '(' lparam ')' ldecl '{' corpomet '}'  (25)
 
-	.  reduce 26
-
-	$$7  goto 48
+	'('  shift 50
+	.  error
 
 
 state 44
-	metnormal : tipo ID . $$6 '(' lparam ')' ldecl '{' corpomet return '}'  (25)
-	$$6 : .  (24)
+	metvoid : VOID ID . $$8 '(' lparam ')' ldecl '{' corpomet '}'  (30)
+	$$8 : .  (29)
 
-	.  reduce 24
+	.  reduce 29
 
-	$$6  goto 49
+	$$8  goto 51
 
 
 state 45
-	lmet : met lmet .  (17)
+	metnormal : tipo $$6 . arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet return '}'  (28)
+	arrayMetodoOuNao : .  (32)
 
-	.  reduce 17
+	'['  shift 52
+	ID  reduce 32
+
+	arrayMetodoOuNao  goto 53
 
 
 state 46
-	lid : ',' ID $$4 . lid  (15)
-	lid : .  (16)
+	lmet : met lmet .  (19)
 
-	','  shift 30
-	';'  reduce 16
-
-	lid  goto 50
+	.  reduce 19
 
 
 state 47
-	metconst : ID $$5 '(' . lparam ')' ldecl '{' corpomet '}'  (23)
-	lparam : .  (29)
+	arrayOuNao : '[' NUM ']' .  (14)
+
+	.  reduce 14
+
+
+state 48
+	lid : ',' ID . $$4 lid  (17)
+	$$4 : .  (16)
+
+	.  reduce 16
+
+	$$4  goto 54
+
+
+state 49
+	decl : tipo ID $$3 arrayOuNao lid ';' .  (13)
+
+	.  reduce 13
+
+
+state 50
+	metconst : ID $$5 '(' . lparam ')' ldecl '{' corpomet '}'  (25)
+	lparam : .  (34)
 
 	ID  shift 17
 	INT  shift 18
 	DOUBLE  shift 19
 	STRING  shift 20
 	BOOLEAN  shift 21
-	')'  reduce 29
+	')'  reduce 34
 
-	tipo  goto 51
-	lparam  goto 52
-	param  goto 53
-
-
-state 48
-	metvoid : VOID ID $$7 . '(' lparam ')' ldecl '{' corpomet '}'  (27)
-
-	'('  shift 54
-	.  error
-
-
-state 49
-	metnormal : tipo ID $$6 . '(' lparam ')' ldecl '{' corpomet return '}'  (25)
-
-	'('  shift 55
-	.  error
-
-
-state 50
-	lid : ',' ID $$4 lid .  (15)
-
-	.  reduce 15
+	tipo  goto 55
+	lparam  goto 56
+	param  goto 57
 
 
 state 51
-	param : tipo . ID  (30)
+	metvoid : VOID ID $$8 . '(' lparam ')' ldecl '{' corpomet '}'  (30)
 
-	ID  shift 56
+	'('  shift 58
 	.  error
 
 
 state 52
-	metconst : ID $$5 '(' lparam . ')' ldecl '{' corpomet '}'  (23)
+	arrayMetodoOuNao : '[' . ']'  (31)
 
-	')'  shift 57
+	']'  shift 59
 	.  error
 
 
 state 53
-	lparam : param . sublparam  (28)
-	sublparam : .  (32)
+	metnormal : tipo $$6 arrayMetodoOuNao . ID $$7 '(' lparam ')' ldecl '{' corpomet return '}'  (28)
 
-	','  shift 58
-	')'  reduce 32
-
-	sublparam  goto 59
+	ID  shift 60
+	.  error
 
 
 state 54
-	metvoid : VOID ID $$7 '(' . lparam ')' ldecl '{' corpomet '}'  (27)
-	lparam : .  (29)
+	lid : ',' ID $$4 . lid  (17)
+	lid : .  (18)
 
-	ID  shift 17
-	INT  shift 18
-	DOUBLE  shift 19
-	STRING  shift 20
-	BOOLEAN  shift 21
-	')'  reduce 29
+	','  shift 41
+	';'  reduce 18
 
-	tipo  goto 51
-	lparam  goto 60
-	param  goto 53
+	lid  goto 61
 
 
 state 55
-	metnormal : tipo ID $$6 '(' . lparam ')' ldecl '{' corpomet return '}'  (25)
-	lparam : .  (29)
+	param : tipo . ID  (35)
 
-	ID  shift 17
-	INT  shift 18
-	DOUBLE  shift 19
-	STRING  shift 20
-	BOOLEAN  shift 21
-	')'  reduce 29
-
-	tipo  goto 51
-	lparam  goto 61
-	param  goto 53
+	ID  shift 62
+	.  error
 
 
 state 56
-	param : tipo ID .  (30)
+	metconst : ID $$5 '(' lparam . ')' ldecl '{' corpomet '}'  (25)
 
-	.  reduce 30
+	')'  shift 63
+	.  error
 
 
 state 57
-	metconst : ID $$5 '(' lparam ')' . ldecl '{' corpomet '}'  (23)
-	ldecl : .  (11)
+	lparam : param . sublparam  (33)
+	sublparam : .  (37)
 
-	ID  shift 17
-	INT  shift 18
-	DOUBLE  shift 19
-	STRING  shift 20
-	BOOLEAN  shift 21
-	'{'  reduce 11
+	','  shift 64
+	')'  reduce 37
 
-	tipo  goto 22
-	ldecl  goto 62
-	decl  goto 24
+	sublparam  goto 65
 
 
 state 58
-	sublparam : ',' . param sublparam  (31)
+	metvoid : VOID ID $$8 '(' . lparam ')' ldecl '{' corpomet '}'  (30)
+	lparam : .  (34)
 
 	ID  shift 17
 	INT  shift 18
 	DOUBLE  shift 19
 	STRING  shift 20
 	BOOLEAN  shift 21
-	.  error
+	')'  reduce 34
 
-	tipo  goto 51
-	param  goto 63
+	tipo  goto 55
+	lparam  goto 66
+	param  goto 57
 
 
 state 59
-	lparam : param sublparam .  (28)
+	arrayMetodoOuNao : '[' ']' .  (31)
 
-	.  reduce 28
+	.  reduce 31
 
 
 state 60
-	metvoid : VOID ID $$7 '(' lparam . ')' ldecl '{' corpomet '}'  (27)
+	metnormal : tipo $$6 arrayMetodoOuNao ID . $$7 '(' lparam ')' ldecl '{' corpomet return '}'  (28)
+	$$7 : .  (27)
 
-	')'  shift 64
-	.  error
+	.  reduce 27
+
+	$$7  goto 67
 
 
 state 61
-	metnormal : tipo ID $$6 '(' lparam . ')' ldecl '{' corpomet return '}'  (25)
+	lid : ',' ID $$4 lid .  (17)
 
-	')'  shift 65
-	.  error
+	.  reduce 17
 
 
 state 62
-	metconst : ID $$5 '(' lparam ')' ldecl . '{' corpomet '}'  (23)
+	param : tipo ID .  (35)
 
-	'{'  shift 66
-	.  error
+	.  reduce 35
 
 
 state 63
-	sublparam : ',' param . sublparam  (31)
-	sublparam : .  (32)
-
-	','  shift 58
-	')'  reduce 32
-
-	sublparam  goto 67
-
-
-state 64
-	metvoid : VOID ID $$7 '(' lparam ')' . ldecl '{' corpomet '}'  (27)
+	metconst : ID $$5 '(' lparam ')' . ldecl '{' corpomet '}'  (25)
 	ldecl : .  (11)
 
 	ID  shift 17
@@ -727,8 +710,59 @@ state 64
 	decl  goto 24
 
 
+state 64
+	sublparam : ',' . param sublparam  (36)
+
+	ID  shift 17
+	INT  shift 18
+	DOUBLE  shift 19
+	STRING  shift 20
+	BOOLEAN  shift 21
+	.  error
+
+	tipo  goto 55
+	param  goto 69
+
+
 state 65
-	metnormal : tipo ID $$6 '(' lparam ')' . ldecl '{' corpomet return '}'  (25)
+	lparam : param sublparam .  (33)
+
+	.  reduce 33
+
+
+state 66
+	metvoid : VOID ID $$8 '(' lparam . ')' ldecl '{' corpomet '}'  (30)
+
+	')'  shift 70
+	.  error
+
+
+state 67
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 . '(' lparam ')' ldecl '{' corpomet return '}'  (28)
+
+	'('  shift 71
+	.  error
+
+
+state 68
+	metconst : ID $$5 '(' lparam ')' ldecl . '{' corpomet '}'  (25)
+
+	'{'  shift 72
+	.  error
+
+
+state 69
+	sublparam : ',' param . sublparam  (36)
+	sublparam : .  (37)
+
+	','  shift 64
+	')'  reduce 37
+
+	sublparam  goto 73
+
+
+state 70
+	metvoid : VOID ID $$8 '(' lparam ')' . ldecl '{' corpomet '}'  (30)
 	ldecl : .  (11)
 
 	ID  shift 17
@@ -739,1051 +773,1291 @@ state 65
 	'{'  reduce 11
 
 	tipo  goto 22
-	ldecl  goto 69
+	ldecl  goto 74
 	decl  goto 24
 
 
-state 66
-	metconst : ID $$5 '(' lparam ')' ldecl '{' . corpomet '}'  (23)
-	lcmdloop : .  (90)
-
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	'}'  reduce 90
-
-	corpomet  goto 77
-	lcmdloop  goto 78
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
-
-
-state 67
-	sublparam : ',' param sublparam .  (31)
-
-	.  reduce 31
-
-
-state 68
-	metvoid : VOID ID $$7 '(' lparam ')' ldecl . '{' corpomet '}'  (27)
-
-	'{'  shift 87
-	.  error
-
-
-state 69
-	metnormal : tipo ID $$6 '(' lparam ')' ldecl . '{' corpomet return '}'  (25)
-
-	'{'  shift 88
-	.  error
-
-
-state 70
-	atrib : ID . '=' exp  (70)
-
-	'='  shift 89
-	.  error
-
-
 state 71
-	if : IF . exp $$12 ':' lcmdloop else  (78)
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' . lparam ')' ldecl '{' corpomet return '}'  (28)
+	lparam : .  (34)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
+	ID  shift 17
+	INT  shift 18
+	DOUBLE  shift 19
+	STRING  shift 20
+	BOOLEAN  shift 21
+	')'  reduce 34
 
-	exp  goto 98
-	chamaMetodo  goto 99
+	tipo  goto 55
+	lparam  goto 75
+	param  goto 57
 
 
 state 72
-	escrita : ESCREVA . restoEscrita  (71)
+	metconst : ID $$5 '(' lparam ')' ldecl '{' . corpomet '}'  (25)
+	lcmdloop : .  (96)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	'}'  reduce 96
 
-	exp  goto 100
-	chamaMetodo  goto 99
-	restoEscrita  goto 101
+	corpomet  goto 83
+	lcmdloop  goto 84
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
 
 
 state 73
-	leia : LEIA . ID $$11 ';'  (76)
+	sublparam : ',' param sublparam .  (36)
 
-	ID  shift 102
-	.  error
+	.  reduce 36
 
 
 state 74
-	break : BREAK . ';'  (87)
+	metvoid : VOID ID $$8 '(' lparam ')' ldecl . '{' corpomet '}'  (30)
 
-	';'  shift 103
+	'{'  shift 93
 	.  error
 
 
 state 75
-	while : WHILE . exp $$13 ':' $$14 lcmdloop ENDWHILE  (83)
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam . ')' ldecl '{' corpomet return '}'  (28)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	')'  shift 94
 	.  error
-
-	exp  goto 104
-	chamaMetodo  goto 99
 
 
 state 76
-	for : FOR . atrib ';' exp $$15 ';' atrib ':' $$16 lcmdloop ENDFOR  (86)
+	atrib : ID . arrayOuNao '=' exp  (76)
+	arrayOuNao : .  (15)
 
-	ID  shift 70
-	.  error
+	'['  shift 30
+	'='  reduce 15
 
-	atrib  goto 105
+	arrayOuNao  goto 95
 
 
 state 77
-	metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet . '}'  (23)
+	if : IF . exp $$13 ':' lcmdloop else  (84)
 
-	'}'  shift 106
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
+
+	exp  goto 104
+	chamaMetodo  goto 105
 
 
 state 78
-	corpomet : lcmdloop .  (63)
+	escrita : ESCREVA . restoEscrita  (77)
 
-	.  reduce 63
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 106
+	chamaMetodo  goto 105
+	restoEscrita  goto 107
 
 
 state 79
-	lcmdloop : cmd . lcmdloop  (88)
-	lcmdloop : .  (90)
+	leia : LEIA . ID $$12 ';'  (82)
 
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ELSE  reduce 90
-	RETURN  reduce 90
-	ENDIF  reduce 90
-	ENDWHILE  reduce 90
-	ENDFOR  reduce 90
-	'}'  reduce 90
-
-	lcmdloop  goto 107
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
+	ID  shift 108
+	.  error
 
 
 state 80
-	cmd : atrib . ';'  (64)
+	break : BREAK . ';'  (93)
 
-	';'  shift 108
+	';'  shift 109
 	.  error
 
 
 state 81
-	cmd : escrita .  (65)
+	while : WHILE . exp $$14 ':' $$15 lcmdloop ENDWHILE  (89)
 
-	.  reduce 65
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 110
+	chamaMetodo  goto 105
 
 
 state 82
-	cmd : leia .  (66)
+	for : FOR . atrib ';' exp $$16 ';' atrib ':' $$17 lcmdloop ENDFOR  (92)
 
-	.  reduce 66
+	ID  shift 76
+	.  error
+
+	atrib  goto 111
 
 
 state 83
-	cmd : if .  (67)
+	metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet . '}'  (25)
 
-	.  reduce 67
+	'}'  shift 112
+	.  error
 
 
 state 84
-	cmd : while .  (68)
-
-	.  reduce 68
-
-
-state 85
-	cmd : for .  (69)
+	corpomet : lcmdloop .  (69)
 
 	.  reduce 69
 
 
+state 85
+	lcmdloop : cmd . lcmdloop  (94)
+	lcmdloop : .  (96)
+
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ELSE  reduce 96
+	RETURN  reduce 96
+	ENDIF  reduce 96
+	ENDWHILE  reduce 96
+	ENDFOR  reduce 96
+	'}'  reduce 96
+
+	lcmdloop  goto 113
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
+
+
 state 86
-	lcmdloop : break . lcmdloop  (89)
-	lcmdloop : .  (90)
+	cmd : atrib . ';'  (70)
 
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ELSE  reduce 90
-	RETURN  reduce 90
-	ENDIF  reduce 90
-	ENDWHILE  reduce 90
-	ENDFOR  reduce 90
-	'}'  reduce 90
-
-	lcmdloop  goto 109
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
+	';'  shift 114
+	.  error
 
 
 state 87
-	metvoid : VOID ID $$7 '(' lparam ')' ldecl '{' . corpomet '}'  (27)
-	lcmdloop : .  (90)
+	cmd : escrita .  (71)
 
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	'}'  reduce 90
-
-	corpomet  goto 110
-	lcmdloop  goto 78
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
+	.  reduce 71
 
 
 state 88
-	metnormal : tipo ID $$6 '(' lparam ')' ldecl '{' . corpomet return '}'  (25)
-	lcmdloop : .  (90)
+	cmd : leia .  (72)
 
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	RETURN  reduce 90
-
-	corpomet  goto 111
-	lcmdloop  goto 78
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
+	.  reduce 72
 
 
 state 89
-	atrib : ID '=' . exp  (70)
+	cmd : if .  (73)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 112
-	chamaMetodo  goto 99
+	.  reduce 73
 
 
 state 90
-	exp : ID .  (60)
-	chamaMetodo : ID . '.' ID $$17 '(' lparamchamada ')'  (92)
+	cmd : while .  (74)
 
-	'.'  shift 113
-	EQ  reduce 60
-	LEQ  reduce 60
-	GEQ  reduce 60
-	NEQ  reduce 60
-	AND  reduce 60
-	OR  reduce 60
-	'>'  reduce 60
-	'<'  reduce 60
-	'+'  reduce 60
-	'-'  reduce 60
-	'*'  reduce 60
-	'/'  reduce 60
-	'%'  reduce 60
-	':'  reduce 60
-	';'  reduce 60
-	','  reduce 60
-	')'  reduce 60
+	.  reduce 74
 
 
 state 91
-	exp : NUM .  (54)
+	cmd : for .  (75)
 
-	.  reduce 54
+	.  reduce 75
 
 
 state 92
-	exp : LIT .  (58)
+	lcmdloop : break . lcmdloop  (95)
+	lcmdloop : .  (96)
 
-	.  reduce 58
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ELSE  reduce 96
+	RETURN  reduce 96
+	ENDIF  reduce 96
+	ENDWHILE  reduce 96
+	ENDFOR  reduce 96
+	'}'  reduce 96
+
+	lcmdloop  goto 115
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
 
 
 state 93
-	exp : TRUE .  (56)
+	metvoid : VOID ID $$8 '(' lparam ')' ldecl '{' . corpomet '}'  (30)
+	lcmdloop : .  (96)
 
-	.  reduce 56
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	'}'  reduce 96
+
+	corpomet  goto 116
+	lcmdloop  goto 84
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
 
 
 state 94
-	exp : FALSE .  (57)
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' . ldecl '{' corpomet return '}'  (28)
+	ldecl : .  (11)
 
-	.  reduce 57
+	ID  shift 17
+	INT  shift 18
+	DOUBLE  shift 19
+	STRING  shift 20
+	BOOLEAN  shift 21
+	'{'  reduce 11
+
+	tipo  goto 22
+	ldecl  goto 117
+	decl  goto 24
 
 
 state 95
-	exp : NEW . chamaConstrutor  (62)
+	atrib : ID arrayOuNao . '=' exp  (76)
 
-	ID  shift 114
+	'='  shift 118
 	.  error
-
-	chamaConstrutor  goto 115
 
 
 state 96
-	exp : NUMDOUBLE .  (55)
+	exp : ID .  (65)
+	chamaMetodo : ID . '.' ID $$18 '(' lparamchamada ')'  (98)
 
-	.  reduce 55
+	'.'  shift 119
+	EQ  reduce 65
+	LEQ  reduce 65
+	GEQ  reduce 65
+	NEQ  reduce 65
+	AND  reduce 65
+	OR  reduce 65
+	'>'  reduce 65
+	'<'  reduce 65
+	'+'  reduce 65
+	'-'  reduce 65
+	'*'  reduce 65
+	'/'  reduce 65
+	'%'  reduce 65
+	'['  reduce 65
+	':'  reduce 65
+	';'  reduce 65
+	']'  reduce 65
+	','  reduce 65
+	')'  reduce 65
 
 
 state 97
-	exp : '(' . exp ')'  (59)
+	exp : NUM .  (59)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 116
-	chamaMetodo  goto 99
+	.  reduce 59
 
 
 state 98
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	if : IF exp . $$12 ':' lcmdloop else  (78)
-	$$12 : .  (77)
+	exp : LIT .  (63)
 
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	':'  reduce 77
-
-	$$12  goto 130
+	.  reduce 63
 
 
 state 99
-	exp : chamaMetodo .  (61)
+	exp : TRUE .  (61)
 
 	.  reduce 61
 
 
 state 100
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	restoEscrita : exp . contescrita ';'  (72)
-	contescrita : .  (74)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	','  shift 131
-	';'  reduce 74
-
-	contescrita  goto 132
-
-
-state 101
-	escrita : ESCREVA restoEscrita .  (71)
-
-	.  reduce 71
-
-
-state 102
-	leia : LEIA ID . $$11 ';'  (76)
-	$$11 : .  (75)
-
-	.  reduce 75
-
-	$$11  goto 133
-
-
-state 103
-	break : BREAK ';' .  (87)
-
-	.  reduce 87
-
-
-state 104
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	while : WHILE exp . $$13 ':' $$14 lcmdloop ENDWHILE  (83)
-	$$13 : .  (81)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	':'  reduce 81
-
-	$$13  goto 134
-
-
-state 105
-	for : FOR atrib . ';' exp $$15 ';' atrib ':' $$16 lcmdloop ENDFOR  (86)
-
-	';'  shift 135
-	.  error
-
-
-state 106
-	metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet '}' .  (23)
-
-	.  reduce 23
-
-
-state 107
-	lcmdloop : cmd lcmdloop .  (88)
-
-	.  reduce 88
-
-
-state 108
-	cmd : atrib ';' .  (64)
-
-	.  reduce 64
-
-
-state 109
-	lcmdloop : break lcmdloop .  (89)
-
-	.  reduce 89
-
-
-state 110
-	metvoid : VOID ID $$7 '(' lparam ')' ldecl '{' corpomet . '}'  (27)
-
-	'}'  shift 136
-	.  error
-
-
-state 111
-	metnormal : tipo ID $$6 '(' lparam ')' ldecl '{' corpomet . return '}'  (25)
-
-	RETURN  shift 137
-	.  error
-
-	return  goto 138
-
-
-state 112
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	atrib : ID '=' exp .  (70)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	':'  reduce 70
-	';'  reduce 70
-
-
-state 113
-	chamaMetodo : ID '.' . ID $$17 '(' lparamchamada ')'  (92)
-
-	ID  shift 139
-	.  error
-
-
-state 114
-	chamaConstrutor : ID . $$18 '(' lparamchamada ')'  (94)
-	$$18 : .  (93)
-
-	.  reduce 93
-
-	$$18  goto 140
-
-
-state 115
-	exp : NEW chamaConstrutor .  (62)
+	exp : FALSE .  (62)
 
 	.  reduce 62
 
 
-state 116
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	exp : '(' exp . ')'  (59)
+state 101
+	exp : NEW . chamaConstrutor  (68)
 
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	')'  shift 141
+	ID  shift 120
+	.  error
+
+	chamaConstrutor  goto 121
+
+
+state 102
+	exp : NUMDOUBLE .  (60)
+
+	.  reduce 60
+
+
+state 103
+	exp : '(' . exp ')'  (64)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 122
+	chamaMetodo  goto 105
+
+
+state 104
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	if : IF exp . $$13 ':' lcmdloop else  (84)
+	$$13 : .  (83)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	':'  reduce 83
+
+	$$13  goto 137
+
+
+state 105
+	exp : chamaMetodo .  (67)
+
+	.  reduce 67
+
+
+state 106
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	restoEscrita : exp . contescrita ';'  (78)
+	contescrita : .  (80)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	','  shift 138
+	';'  reduce 80
+
+	contescrita  goto 139
+
+
+state 107
+	escrita : ESCREVA restoEscrita .  (77)
+
+	.  reduce 77
+
+
+state 108
+	leia : LEIA ID . $$12 ';'  (82)
+	$$12 : .  (81)
+
+	.  reduce 81
+
+	$$12  goto 140
+
+
+state 109
+	break : BREAK ';' .  (93)
+
+	.  reduce 93
+
+
+state 110
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	while : WHILE exp . $$14 ':' $$15 lcmdloop ENDWHILE  (89)
+	$$14 : .  (87)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	':'  reduce 87
+
+	$$14  goto 141
+
+
+state 111
+	for : FOR atrib . ';' exp $$16 ';' atrib ':' $$17 lcmdloop ENDFOR  (92)
+
+	';'  shift 142
+	.  error
+
+
+state 112
+	metconst : ID $$5 '(' lparam ')' ldecl '{' corpomet '}' .  (25)
+
+	.  reduce 25
+
+
+state 113
+	lcmdloop : cmd lcmdloop .  (94)
+
+	.  reduce 94
+
+
+state 114
+	cmd : atrib ';' .  (70)
+
+	.  reduce 70
+
+
+state 115
+	lcmdloop : break lcmdloop .  (95)
+
+	.  reduce 95
+
+
+state 116
+	metvoid : VOID ID $$8 '(' lparam ')' ldecl '{' corpomet . '}'  (30)
+
+	'}'  shift 143
 	.  error
 
 
 state 117
-	exp : exp EQ . exp  (52)
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl . '{' corpomet return '}'  (28)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	'{'  shift 144
 	.  error
-
-	exp  goto 142
-	chamaMetodo  goto 99
 
 
 state 118
-	exp : exp LEQ . exp  (50)
+	atrib : ID arrayOuNao '=' . exp  (76)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 143
-	chamaMetodo  goto 99
-
-
-state 119
-	exp : exp GEQ . exp  (51)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 144
-	chamaMetodo  goto 99
-
-
-state 120
-	exp : exp NEQ . exp  (53)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 145
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
+
+
+state 119
+	chamaMetodo : ID '.' . ID $$18 '(' lparamchamada ')'  (98)
+
+	ID  shift 146
+	.  error
+
+
+state 120
+	chamaConstrutor : ID . $$19 '(' lparamchamada ')'  (100)
+	$$19 : .  (99)
+
+	.  reduce 99
+
+	$$19  goto 147
 
 
 state 121
-	exp : exp AND . exp  (48)
+	exp : NEW chamaConstrutor .  (68)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 146
-	chamaMetodo  goto 99
+	.  reduce 68
 
 
 state 122
-	exp : exp OR . exp  (49)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : '(' exp . ')'  (64)
+	exp : exp . '[' exp ']'  (66)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	')'  shift 148
 	.  error
-
-	exp  goto 147
-	chamaMetodo  goto 99
 
 
 state 123
-	exp : exp '>' . exp  (45)
+	exp : exp EQ . exp  (57)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 148
-	chamaMetodo  goto 99
-
-
-state 124
-	exp : exp '<' . exp  (46)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 149
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 125
-	exp : exp '+' . exp  (41)
+state 124
+	exp : exp LEQ . exp  (55)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 150
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 126
-	exp : exp '-' . exp  (43)
+state 125
+	exp : exp GEQ . exp  (56)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 151
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 127
-	exp : exp '*' . exp  (42)
+state 126
+	exp : exp NEQ . exp  (58)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 152
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 128
-	exp : exp '/' . exp  (44)
+state 127
+	exp : exp AND . exp  (53)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 153
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 129
-	exp : exp '%' . exp  (47)
+state 128
+	exp : exp OR . exp  (54)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 154
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
+
+
+state 129
+	exp : exp '>' . exp  (50)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 155
+	chamaMetodo  goto 105
 
 
 state 130
-	if : IF exp $$12 . ':' lcmdloop else  (78)
+	exp : exp '<' . exp  (51)
 
-	':'  shift 155
-	.  error
-
-
-state 131
-	contescrita : ',' . exp  (73)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 156
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
+
+
+state 131
+	exp : exp '+' . exp  (46)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 157
+	chamaMetodo  goto 105
 
 
 state 132
-	restoEscrita : exp contescrita . ';'  (72)
+	exp : exp '-' . exp  (48)
 
-	';'  shift 157
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
+
+	exp  goto 158
+	chamaMetodo  goto 105
 
 
 state 133
-	leia : LEIA ID $$11 . ';'  (76)
+	exp : exp '*' . exp  (47)
 
-	';'  shift 158
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
+
+	exp  goto 159
+	chamaMetodo  goto 105
 
 
 state 134
-	while : WHILE exp $$13 . ':' $$14 lcmdloop ENDWHILE  (83)
+	exp : exp '/' . exp  (49)
 
-	':'  shift 159
-	.  error
-
-
-state 135
-	for : FOR atrib ';' . exp $$15 ';' atrib ':' $$16 lcmdloop ENDFOR  (86)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 160
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 136
-	metvoid : VOID ID $$7 '(' lparam ')' ldecl '{' corpomet '}' .  (27)
+state 135
+	exp : exp '%' . exp  (52)
 
-	.  reduce 27
-
-
-state 137
-	return : RETURN . exp $$10 ';'  (40)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
 	exp  goto 161
-	chamaMetodo  goto 99
+	chamaMetodo  goto 105
 
 
-state 138
-	metnormal : tipo ID $$6 '(' lparam ')' ldecl '{' corpomet return . '}'  (25)
+state 136
+	exp : exp '[' . exp ']'  (66)
 
-	'}'  shift 162
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 162
+	chamaMetodo  goto 105
+
+
+state 137
+	if : IF exp $$13 . ':' lcmdloop else  (84)
+
+	':'  shift 163
 	.  error
 
 
+state 138
+	contescrita : ',' . exp  (79)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 164
+	chamaMetodo  goto 105
+
+
 state 139
-	chamaMetodo : ID '.' ID . $$17 '(' lparamchamada ')'  (92)
-	$$17 : .  (91)
+	restoEscrita : exp contescrita . ';'  (78)
 
-	.  reduce 91
-
-	$$17  goto 163
+	';'  shift 165
+	.  error
 
 
 state 140
-	chamaConstrutor : ID $$18 . '(' lparamchamada ')'  (94)
+	leia : LEIA ID $$12 . ';'  (82)
 
-	'('  shift 164
+	';'  shift 166
 	.  error
 
 
 state 141
-	exp : '(' exp ')' .  (59)
+	while : WHILE exp $$14 . ':' $$15 lcmdloop ENDWHILE  (89)
 
-	.  reduce 59
+	':'  shift 167
+	.  error
 
 
 state 142
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp EQ exp .  (52)
-	exp : exp . NEQ exp  (53)
+	for : FOR atrib ';' . exp $$16 ';' atrib ':' $$17 lcmdloop ENDFOR  (92)
 
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	EQ  reduce 52
-	LEQ  reduce 52
-	GEQ  reduce 52
-	NEQ  reduce 52
-	AND  reduce 52
-	OR  reduce 52
-	'>'  reduce 52
-	'<'  reduce 52
-	':'  reduce 52
-	';'  reduce 52
-	','  reduce 52
-	')'  reduce 52
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 168
+	chamaMetodo  goto 105
 
 
 state 143
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp LEQ exp .  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
+	metvoid : VOID ID $$8 '(' lparam ')' ldecl '{' corpomet '}' .  (30)
 
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
+	.  reduce 30
+
+
+state 144
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' . corpomet return '}'  (28)
+	lcmdloop : .  (96)
+
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	RETURN  reduce 96
+
+	corpomet  goto 169
+	lcmdloop  goto 84
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
+
+
+state 145
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	atrib : ID arrayOuNao '=' exp .  (76)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	':'  reduce 76
+	';'  reduce 76
+
+
+state 146
+	chamaMetodo : ID '.' ID . $$18 '(' lparamchamada ')'  (98)
+	$$18 : .  (97)
+
+	.  reduce 97
+
+	$$18  goto 170
+
+
+state 147
+	chamaConstrutor : ID $$19 . '(' lparamchamada ')'  (100)
+
+	'('  shift 171
+	.  error
+
+
+state 148
+	exp : '(' exp ')' .  (64)
+
+	.  reduce 64
+
+
+state 149
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp EQ exp .  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	EQ  reduce 57
+	LEQ  reduce 57
+	GEQ  reduce 57
+	NEQ  reduce 57
+	AND  reduce 57
+	OR  reduce 57
+	'>'  reduce 57
+	'<'  reduce 57
+	':'  reduce 57
+	';'  reduce 57
+	']'  reduce 57
+	','  reduce 57
+	')'  reduce 57
+
+
+state 150
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp LEQ exp .  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	EQ  reduce 55
+	LEQ  reduce 55
+	GEQ  reduce 55
+	NEQ  reduce 55
+	AND  reduce 55
+	OR  reduce 55
+	'>'  reduce 55
+	'<'  reduce 55
+	':'  reduce 55
+	';'  reduce 55
+	']'  reduce 55
+	','  reduce 55
+	')'  reduce 55
+
+
+state 151
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp GEQ exp .  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	EQ  reduce 56
+	LEQ  reduce 56
+	GEQ  reduce 56
+	NEQ  reduce 56
+	AND  reduce 56
+	OR  reduce 56
+	'>'  reduce 56
+	'<'  reduce 56
+	':'  reduce 56
+	';'  reduce 56
+	']'  reduce 56
+	','  reduce 56
+	')'  reduce 56
+
+
+state 152
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp NEQ exp .  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	EQ  reduce 58
+	LEQ  reduce 58
+	GEQ  reduce 58
+	NEQ  reduce 58
+	AND  reduce 58
+	OR  reduce 58
+	'>'  reduce 58
+	'<'  reduce 58
+	':'  reduce 58
+	';'  reduce 58
+	']'  reduce 58
+	','  reduce 58
+	')'  reduce 58
+
+
+state 153
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp AND exp .  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	AND  reduce 53
+	OR  reduce 53
+	':'  reduce 53
+	';'  reduce 53
+	']'  reduce 53
+	','  reduce 53
+	')'  reduce 53
+
+
+state 154
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp OR exp .  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	OR  reduce 54
+	':'  reduce 54
+	';'  reduce 54
+	']'  reduce 54
+	','  reduce 54
+	')'  reduce 54
+
+
+state 155
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp '>' exp .  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
 	EQ  reduce 50
 	LEQ  reduce 50
 	GEQ  reduce 50
@@ -1794,31 +2068,34 @@ state 143
 	'<'  reduce 50
 	':'  reduce 50
 	';'  reduce 50
+	']'  reduce 50
 	','  reduce 50
 	')'  reduce 50
 
 
-state 144
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp GEQ exp .  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
+state 156
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp '<' exp .  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
 	EQ  reduce 51
 	LEQ  reduce 51
 	GEQ  reduce 51
@@ -1829,171 +2106,32 @@ state 144
 	'<'  reduce 51
 	':'  reduce 51
 	';'  reduce 51
+	']'  reduce 51
 	','  reduce 51
 	')'  reduce 51
 
 
-state 145
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	exp : exp NEQ exp .  (53)
+state 157
+	exp : exp . '+' exp  (46)
+	exp : exp '+' exp .  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	EQ  reduce 53
-	LEQ  reduce 53
-	GEQ  reduce 53
-	NEQ  reduce 53
-	AND  reduce 53
-	OR  reduce 53
-	'>'  reduce 53
-	'<'  reduce 53
-	':'  reduce 53
-	';'  reduce 53
-	','  reduce 53
-	')'  reduce 53
-
-
-state 146
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp AND exp .  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	AND  reduce 48
-	OR  reduce 48
-	':'  reduce 48
-	';'  reduce 48
-	','  reduce 48
-	')'  reduce 48
-
-
-state 147
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp OR exp .  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	OR  reduce 49
-	':'  reduce 49
-	';'  reduce 49
-	','  reduce 49
-	')'  reduce 49
-
-
-state 148
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp '>' exp .  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	EQ  reduce 45
-	LEQ  reduce 45
-	GEQ  reduce 45
-	NEQ  reduce 45
-	AND  reduce 45
-	OR  reduce 45
-	'>'  reduce 45
-	'<'  reduce 45
-	':'  reduce 45
-	';'  reduce 45
-	','  reduce 45
-	')'  reduce 45
-
-
-state 149
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp '<' exp .  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
 	EQ  reduce 46
 	LEQ  reduce 46
 	GEQ  reduce 46
@@ -2002,669 +2140,781 @@ state 149
 	OR  reduce 46
 	'>'  reduce 46
 	'<'  reduce 46
+	'+'  reduce 46
+	'-'  reduce 46
 	':'  reduce 46
 	';'  reduce 46
+	']'  reduce 46
 	','  reduce 46
 	')'  reduce 46
 
 
-state 150
-	exp : exp . '+' exp  (41)
-	exp : exp '+' exp .  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	EQ  reduce 41
-	LEQ  reduce 41
-	GEQ  reduce 41
-	NEQ  reduce 41
-	AND  reduce 41
-	OR  reduce 41
-	'>'  reduce 41
-	'<'  reduce 41
-	'+'  reduce 41
-	'-'  reduce 41
-	':'  reduce 41
-	';'  reduce 41
-	','  reduce 41
-	')'  reduce 41
-
-
-state 151
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp '-' exp .  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	EQ  reduce 43
-	LEQ  reduce 43
-	GEQ  reduce 43
-	NEQ  reduce 43
-	AND  reduce 43
-	OR  reduce 43
-	'>'  reduce 43
-	'<'  reduce 43
-	'+'  reduce 43
-	'-'  reduce 43
-	':'  reduce 43
-	';'  reduce 43
-	','  reduce 43
-	')'  reduce 43
-
-
-state 152
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp '*' exp .  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	.  reduce 42
-
-
-state 153
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp '/' exp .  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	.  reduce 44
-
-
-state 154
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp '%' exp .  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-
-	.  reduce 47
-
-
-state 155
-	if : IF exp $$12 ':' . lcmdloop else  (78)
-	lcmdloop : .  (90)
-
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ELSE  reduce 90
-	ENDIF  reduce 90
-
-	lcmdloop  goto 165
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
-
-
-state 156
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	contescrita : ',' exp .  (73)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	';'  reduce 73
-
-
-state 157
-	restoEscrita : exp contescrita ';' .  (72)
-
-	.  reduce 72
-
-
 state 158
-	leia : LEIA ID $$11 ';' .  (76)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp '-' exp .  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	.  reduce 76
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	EQ  reduce 48
+	LEQ  reduce 48
+	GEQ  reduce 48
+	NEQ  reduce 48
+	AND  reduce 48
+	OR  reduce 48
+	'>'  reduce 48
+	'<'  reduce 48
+	'+'  reduce 48
+	'-'  reduce 48
+	':'  reduce 48
+	';'  reduce 48
+	']'  reduce 48
+	','  reduce 48
+	')'  reduce 48
 
 
 state 159
-	while : WHILE exp $$13 ':' . $$14 lcmdloop ENDWHILE  (83)
-	$$14 : .  (82)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp '*' exp .  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	.  reduce 82
-
-	$$14  goto 166
+	'['  shift 136
+	EQ  reduce 47
+	LEQ  reduce 47
+	GEQ  reduce 47
+	NEQ  reduce 47
+	AND  reduce 47
+	OR  reduce 47
+	'>'  reduce 47
+	'<'  reduce 47
+	'+'  reduce 47
+	'-'  reduce 47
+	'*'  reduce 47
+	'/'  reduce 47
+	'%'  reduce 47
+	':'  reduce 47
+	';'  reduce 47
+	']'  reduce 47
+	','  reduce 47
+	')'  reduce 47
 
 
 state 160
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	for : FOR atrib ';' exp . $$15 ';' atrib ':' $$16 lcmdloop ENDFOR  (86)
-	$$15 : .  (84)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp '/' exp .  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	';'  reduce 84
-
-	$$15  goto 167
+	'['  shift 136
+	EQ  reduce 49
+	LEQ  reduce 49
+	GEQ  reduce 49
+	NEQ  reduce 49
+	AND  reduce 49
+	OR  reduce 49
+	'>'  reduce 49
+	'<'  reduce 49
+	'+'  reduce 49
+	'-'  reduce 49
+	'*'  reduce 49
+	'/'  reduce 49
+	'%'  reduce 49
+	':'  reduce 49
+	';'  reduce 49
+	']'  reduce 49
+	','  reduce 49
+	')'  reduce 49
 
 
 state 161
-	return : RETURN exp . $$10 ';'  (40)
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	$$10 : .  (39)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp '%' exp .  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
 
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	';'  reduce 39
-
-	$$10  goto 168
+	'['  shift 136
+	EQ  reduce 52
+	LEQ  reduce 52
+	GEQ  reduce 52
+	NEQ  reduce 52
+	AND  reduce 52
+	OR  reduce 52
+	'>'  reduce 52
+	'<'  reduce 52
+	'+'  reduce 52
+	'-'  reduce 52
+	'*'  reduce 52
+	'/'  reduce 52
+	'%'  reduce 52
+	':'  reduce 52
+	';'  reduce 52
+	']'  reduce 52
+	','  reduce 52
+	')'  reduce 52
 
 
 state 162
-	metnormal : tipo ID $$6 '(' lparam ')' ldecl '{' corpomet return '}' .  (25)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	exp : exp '[' exp . ']'  (66)
 
-	.  reduce 25
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	']'  shift 172
+	.  error
 
 
 state 163
-	chamaMetodo : ID '.' ID $$17 . '(' lparamchamada ')'  (92)
+	if : IF exp $$13 ':' . lcmdloop else  (84)
+	lcmdloop : .  (96)
 
-	'('  shift 169
-	.  error
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ELSE  reduce 96
+	ENDIF  reduce 96
+
+	lcmdloop  goto 173
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
 
 
 state 164
-	chamaConstrutor : ID $$18 '(' . lparamchamada ')'  (94)
-	lparamchamada : .  (35)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	contescrita : ',' exp .  (79)
 
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	')'  reduce 35
-
-	exp  goto 170
-	chamaMetodo  goto 99
-	lparamchamada  goto 171
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	';'  reduce 79
 
 
 state 165
-	if : IF exp $$12 ':' lcmdloop . else  (78)
-
-	ELSE  shift 172
-	ENDIF  shift 173
-	.  error
-
-	else  goto 174
-
-
-state 166
-	while : WHILE exp $$13 ':' $$14 . lcmdloop ENDWHILE  (83)
-	lcmdloop : .  (90)
-
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ENDWHILE  reduce 90
-
-	lcmdloop  goto 175
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
-
-
-state 167
-	for : FOR atrib ';' exp $$15 . ';' atrib ':' $$16 lcmdloop ENDFOR  (86)
-
-	';'  shift 176
-	.  error
-
-
-state 168
-	return : RETURN exp $$10 . ';'  (40)
-
-	';'  shift 177
-	.  error
-
-
-state 169
-	chamaMetodo : ID '.' ID $$17 '(' . lparamchamada ')'  (92)
-	lparamchamada : .  (35)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	')'  reduce 35
-
-	exp  goto 170
-	chamaMetodo  goto 99
-	lparamchamada  goto 178
-
-
-state 170
-	lparamchamada : exp . $$8 sublparamchamada  (34)
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	$$8 : .  (33)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	','  reduce 33
-	')'  reduce 33
-
-	$$8  goto 179
-
-
-state 171
-	chamaConstrutor : ID $$18 '(' lparamchamada . ')'  (94)
-
-	')'  shift 180
-	.  error
-
-
-state 172
-	else : ELSE . ':' lcmdloop ENDIF  (79)
-
-	':'  shift 181
-	.  error
-
-
-state 173
-	else : ENDIF .  (80)
-
-	.  reduce 80
-
-
-state 174
-	if : IF exp $$12 ':' lcmdloop else .  (78)
+	restoEscrita : exp contescrita ';' .  (78)
 
 	.  reduce 78
 
 
-state 175
-	while : WHILE exp $$13 ':' $$14 lcmdloop . ENDWHILE  (83)
+state 166
+	leia : LEIA ID $$12 ';' .  (82)
 
-	ENDWHILE  shift 182
+	.  reduce 82
+
+
+state 167
+	while : WHILE exp $$14 ':' . $$15 lcmdloop ENDWHILE  (89)
+	$$15 : .  (88)
+
+	.  reduce 88
+
+	$$15  goto 174
+
+
+state 168
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	for : FOR atrib ';' exp . $$16 ';' atrib ':' $$17 lcmdloop ENDFOR  (92)
+	$$16 : .  (90)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	';'  reduce 90
+
+	$$16  goto 175
+
+
+state 169
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet . return '}'  (28)
+
+	RETURN  shift 176
+	.  error
+
+	return  goto 177
+
+
+state 170
+	chamaMetodo : ID '.' ID $$18 . '(' lparamchamada ')'  (98)
+
+	'('  shift 178
+	.  error
+
+
+state 171
+	chamaConstrutor : ID $$19 '(' . lparamchamada ')'  (100)
+	lparamchamada : .  (40)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	')'  reduce 40
+
+	exp  goto 179
+	chamaMetodo  goto 105
+	lparamchamada  goto 180
+
+
+state 172
+	exp : exp '[' exp ']' .  (66)
+
+	.  reduce 66
+
+
+state 173
+	if : IF exp $$13 ':' lcmdloop . else  (84)
+
+	ELSE  shift 181
+	ENDIF  shift 182
+	.  error
+
+	else  goto 183
+
+
+state 174
+	while : WHILE exp $$14 ':' $$15 . lcmdloop ENDWHILE  (89)
+	lcmdloop : .  (96)
+
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ENDWHILE  reduce 96
+
+	lcmdloop  goto 184
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
+
+
+state 175
+	for : FOR atrib ';' exp $$16 . ';' atrib ':' $$17 lcmdloop ENDFOR  (92)
+
+	';'  shift 185
 	.  error
 
 
 state 176
-	for : FOR atrib ';' exp $$15 ';' . atrib ':' $$16 lcmdloop ENDFOR  (86)
+	return : RETURN . exp $$11 ';'  (45)
 
-	ID  shift 70
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
 	.  error
 
-	atrib  goto 183
+	exp  goto 186
+	chamaMetodo  goto 105
 
 
 state 177
-	return : RETURN exp $$10 ';' .  (40)
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet return . '}'  (28)
 
-	.  reduce 40
+	'}'  shift 187
+	.  error
 
 
 state 178
-	chamaMetodo : ID '.' ID $$17 '(' lparamchamada . ')'  (92)
+	chamaMetodo : ID '.' ID $$18 '(' . lparamchamada ')'  (98)
+	lparamchamada : .  (40)
 
-	')'  shift 184
-	.  error
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	')'  reduce 40
+
+	exp  goto 179
+	chamaMetodo  goto 105
+	lparamchamada  goto 188
 
 
 state 179
-	lparamchamada : exp $$8 . sublparamchamada  (34)
-	sublparamchamada : .  (38)
+	lparamchamada : exp . $$9 sublparamchamada  (39)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	$$9 : .  (38)
 
-	','  shift 185
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	','  reduce 38
 	')'  reduce 38
 
-	sublparamchamada  goto 186
+	$$9  goto 189
 
 
 state 180
-	chamaConstrutor : ID $$18 '(' lparamchamada ')' .  (94)
+	chamaConstrutor : ID $$19 '(' lparamchamada . ')'  (100)
 
-	.  reduce 94
+	')'  shift 190
+	.  error
 
 
 state 181
-	else : ELSE ':' . lcmdloop ENDIF  (79)
-	lcmdloop : .  (90)
+	else : ELSE . ':' lcmdloop ENDIF  (85)
 
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ENDIF  reduce 90
-
-	lcmdloop  goto 187
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
+	':'  shift 191
+	.  error
 
 
 state 182
-	while : WHILE exp $$13 ':' $$14 lcmdloop ENDWHILE .  (83)
-
-	.  reduce 83
-
-
-state 183
-	for : FOR atrib ';' exp $$15 ';' atrib . ':' $$16 lcmdloop ENDFOR  (86)
-
-	':'  shift 188
-	.  error
-
-
-state 184
-	chamaMetodo : ID '.' ID $$17 '(' lparamchamada ')' .  (92)
-
-	.  reduce 92
-
-
-state 185
-	sublparamchamada : ',' . exp $$9 sublparamchamada  (37)
-
-	ID  shift 90
-	NUM  shift 91
-	LIT  shift 92
-	TRUE  shift 93
-	FALSE  shift 94
-	NEW  shift 95
-	NUMDOUBLE  shift 96
-	'('  shift 97
-	.  error
-
-	exp  goto 189
-	chamaMetodo  goto 99
-
-
-state 186
-	lparamchamada : exp $$8 sublparamchamada .  (34)
-
-	.  reduce 34
-
-
-state 187
-	else : ELSE ':' lcmdloop . ENDIF  (79)
-
-	ENDIF  shift 190
-	.  error
-
-
-state 188
-	for : FOR atrib ';' exp $$15 ';' atrib ':' . $$16 lcmdloop ENDFOR  (86)
-	$$16 : .  (85)
-
-	.  reduce 85
-
-	$$16  goto 191
-
-
-state 189
-	sublparamchamada : ',' exp . $$9 sublparamchamada  (37)
-	exp : exp . '+' exp  (41)
-	exp : exp . '*' exp  (42)
-	exp : exp . '-' exp  (43)
-	exp : exp . '/' exp  (44)
-	exp : exp . '>' exp  (45)
-	exp : exp . '<' exp  (46)
-	exp : exp . '%' exp  (47)
-	exp : exp . AND exp  (48)
-	exp : exp . OR exp  (49)
-	exp : exp . LEQ exp  (50)
-	exp : exp . GEQ exp  (51)
-	exp : exp . EQ exp  (52)
-	exp : exp . NEQ exp  (53)
-	$$9 : .  (36)
-
-	EQ  shift 117
-	LEQ  shift 118
-	GEQ  shift 119
-	NEQ  shift 120
-	AND  shift 121
-	OR  shift 122
-	'>'  shift 123
-	'<'  shift 124
-	'+'  shift 125
-	'-'  shift 126
-	'*'  shift 127
-	'/'  shift 128
-	'%'  shift 129
-	','  reduce 36
-	')'  reduce 36
-
-	$$9  goto 192
-
-
-state 190
-	else : ELSE ':' lcmdloop ENDIF .  (79)
-
-	.  reduce 79
-
-
-state 191
-	for : FOR atrib ';' exp $$15 ';' atrib ':' $$16 . lcmdloop ENDFOR  (86)
-	lcmdloop : .  (90)
-
-	ID  shift 70
-	IF  shift 71
-	ESCREVA  shift 72
-	LEIA  shift 73
-	BREAK  shift 74
-	WHILE  shift 75
-	FOR  shift 76
-	ENDFOR  reduce 90
-
-	lcmdloop  goto 193
-	cmd  goto 79
-	atrib  goto 80
-	escrita  goto 81
-	leia  goto 82
-	if  goto 83
-	while  goto 84
-	for  goto 85
-	break  goto 86
-
-
-state 192
-	sublparamchamada : ',' exp $$9 . sublparamchamada  (37)
-	sublparamchamada : .  (38)
-
-	','  shift 185
-	')'  reduce 38
-
-	sublparamchamada  goto 194
-
-
-state 193
-	for : FOR atrib ';' exp $$15 ';' atrib ':' $$16 lcmdloop . ENDFOR  (86)
-
-	ENDFOR  shift 195
-	.  error
-
-
-state 194
-	sublparamchamada : ',' exp $$9 sublparamchamada .  (37)
-
-	.  reduce 37
-
-
-state 195
-	for : FOR atrib ';' exp $$15 ';' atrib ':' $$16 lcmdloop ENDFOR .  (86)
+	else : ENDIF .  (86)
 
 	.  reduce 86
 
 
-58 terminals, 55 nonterminals
-100 grammar rules, 196 states
+state 183
+	if : IF exp $$13 ':' lcmdloop else .  (84)
+
+	.  reduce 84
+
+
+state 184
+	while : WHILE exp $$14 ':' $$15 lcmdloop . ENDWHILE  (89)
+
+	ENDWHILE  shift 192
+	.  error
+
+
+state 185
+	for : FOR atrib ';' exp $$16 ';' . atrib ':' $$17 lcmdloop ENDFOR  (92)
+
+	ID  shift 76
+	.  error
+
+	atrib  goto 193
+
+
+state 186
+	return : RETURN exp . $$11 ';'  (45)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	$$11 : .  (44)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	';'  reduce 44
+
+	$$11  goto 194
+
+
+state 187
+	metnormal : tipo $$6 arrayMetodoOuNao ID $$7 '(' lparam ')' ldecl '{' corpomet return '}' .  (28)
+
+	.  reduce 28
+
+
+state 188
+	chamaMetodo : ID '.' ID $$18 '(' lparamchamada . ')'  (98)
+
+	')'  shift 195
+	.  error
+
+
+state 189
+	lparamchamada : exp $$9 . sublparamchamada  (39)
+	sublparamchamada : .  (43)
+
+	','  shift 196
+	')'  reduce 43
+
+	sublparamchamada  goto 197
+
+
+state 190
+	chamaConstrutor : ID $$19 '(' lparamchamada ')' .  (100)
+
+	.  reduce 100
+
+
+state 191
+	else : ELSE ':' . lcmdloop ENDIF  (85)
+	lcmdloop : .  (96)
+
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ENDIF  reduce 96
+
+	lcmdloop  goto 198
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
+
+
+state 192
+	while : WHILE exp $$14 ':' $$15 lcmdloop ENDWHILE .  (89)
+
+	.  reduce 89
+
+
+state 193
+	for : FOR atrib ';' exp $$16 ';' atrib . ':' $$17 lcmdloop ENDFOR  (92)
+
+	':'  shift 199
+	.  error
+
+
+state 194
+	return : RETURN exp $$11 . ';'  (45)
+
+	';'  shift 200
+	.  error
+
+
+state 195
+	chamaMetodo : ID '.' ID $$18 '(' lparamchamada ')' .  (98)
+
+	.  reduce 98
+
+
+state 196
+	sublparamchamada : ',' . exp $$10 sublparamchamada  (42)
+
+	ID  shift 96
+	NUM  shift 97
+	LIT  shift 98
+	TRUE  shift 99
+	FALSE  shift 100
+	NEW  shift 101
+	NUMDOUBLE  shift 102
+	'('  shift 103
+	.  error
+
+	exp  goto 201
+	chamaMetodo  goto 105
+
+
+state 197
+	lparamchamada : exp $$9 sublparamchamada .  (39)
+
+	.  reduce 39
+
+
+state 198
+	else : ELSE ':' lcmdloop . ENDIF  (85)
+
+	ENDIF  shift 202
+	.  error
+
+
+state 199
+	for : FOR atrib ';' exp $$16 ';' atrib ':' . $$17 lcmdloop ENDFOR  (92)
+	$$17 : .  (91)
+
+	.  reduce 91
+
+	$$17  goto 203
+
+
+state 200
+	return : RETURN exp $$11 ';' .  (45)
+
+	.  reduce 45
+
+
+state 201
+	sublparamchamada : ',' exp . $$10 sublparamchamada  (42)
+	exp : exp . '+' exp  (46)
+	exp : exp . '*' exp  (47)
+	exp : exp . '-' exp  (48)
+	exp : exp . '/' exp  (49)
+	exp : exp . '>' exp  (50)
+	exp : exp . '<' exp  (51)
+	exp : exp . '%' exp  (52)
+	exp : exp . AND exp  (53)
+	exp : exp . OR exp  (54)
+	exp : exp . LEQ exp  (55)
+	exp : exp . GEQ exp  (56)
+	exp : exp . EQ exp  (57)
+	exp : exp . NEQ exp  (58)
+	exp : exp . '[' exp ']'  (66)
+	$$10 : .  (41)
+
+	EQ  shift 123
+	LEQ  shift 124
+	GEQ  shift 125
+	NEQ  shift 126
+	AND  shift 127
+	OR  shift 128
+	'>'  shift 129
+	'<'  shift 130
+	'+'  shift 131
+	'-'  shift 132
+	'*'  shift 133
+	'/'  shift 134
+	'%'  shift 135
+	'['  shift 136
+	','  reduce 41
+	')'  reduce 41
+
+	$$10  goto 204
+
+
+state 202
+	else : ELSE ':' lcmdloop ENDIF .  (85)
+
+	.  reduce 85
+
+
+state 203
+	for : FOR atrib ';' exp $$16 ';' atrib ':' $$17 . lcmdloop ENDFOR  (92)
+	lcmdloop : .  (96)
+
+	ID  shift 76
+	IF  shift 77
+	ESCREVA  shift 78
+	LEIA  shift 79
+	BREAK  shift 80
+	WHILE  shift 81
+	FOR  shift 82
+	ENDFOR  reduce 96
+
+	lcmdloop  goto 205
+	cmd  goto 85
+	atrib  goto 86
+	escrita  goto 87
+	leia  goto 88
+	if  goto 89
+	while  goto 90
+	for  goto 91
+	break  goto 92
+
+
+state 204
+	sublparamchamada : ',' exp $$10 . sublparamchamada  (42)
+	sublparamchamada : .  (43)
+
+	','  shift 196
+	')'  reduce 43
+
+	sublparamchamada  goto 206
+
+
+state 205
+	for : FOR atrib ';' exp $$16 ';' atrib ':' $$17 lcmdloop . ENDFOR  (92)
+
+	ENDFOR  shift 207
+	.  error
+
+
+state 206
+	sublparamchamada : ',' exp $$10 sublparamchamada .  (42)
+
+	.  reduce 42
+
+
+state 207
+	for : FOR atrib ';' exp $$16 ';' atrib ':' $$17 lcmdloop ENDFOR .  (92)
+
+	.  reduce 92
+
+
+59 terminals, 58 nonterminals
+106 grammar rules, 208 states
