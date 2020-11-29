@@ -22,6 +22,7 @@ public class TS_entry
    private String assinatura; // para metodos
    private TS_entry tipoBase; // para arrays
    private int capacidade; // para arrays
+   private boolean foiInstanciado; // para objetos
 
    // construtor geral
    public TS_entry(String umId, TS_entry umTipo, ClasseID umaClasse, String umEscopo) {      
@@ -39,6 +40,7 @@ public class TS_entry
       this.tipoClasse = null;
       this.tipoBase = null;
       this.capacidade = 0;
+      this.foiInstanciado = false;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -64,6 +66,7 @@ public class TS_entry
       this.tipoClasse = null;
       this.tipoBase = null;
       this.capacidade = 0;
+      this.foiInstanciado = false;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -90,6 +93,7 @@ public class TS_entry
       this.classePai = pai;
       this.tipoBase = null;
       this.capacidade = 0;
+      this.foiInstanciado = false;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -103,6 +107,14 @@ public class TS_entry
 
    public String getEscopo() {
       return escopo;
+   }
+
+   public boolean getInstanciado() {
+      return this.foiInstanciado;
+   }
+
+   public void setInstanciado(boolean inst) {
+      this.foiInstanciado = inst;
    }
 
 

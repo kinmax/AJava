@@ -1,8 +1,14 @@
+/*DISCLAIMER: o código abaixo não faz sentido algum*/
+
 class Forma {
     private:
     public:
         int metodoLouco() {
             return 1;
+        }
+
+        boolean metodoSobrescrito() {
+            return false;
         }
 }
 
@@ -22,7 +28,7 @@ class Circulo extends Forma {
 
         double area(double x) {
             x = 4;
-            raios[3] = 5;
+            raios[1] = 5;
             for x = 7 ; x >= 7 ; x = x + 1 :
                 a = 1;
                 if a == 5 :
@@ -31,8 +37,19 @@ class Circulo extends Forma {
                     break;
                 endIf
             endFor
+
+            while x < 7 :
+                x = x + 1;
+                if x == 8 :
+                    break;
+                endIf
+            endWhile
             /* break; */
             return x;
+        }
+
+        boolean metodoSobrescrito() {
+            return false;
         }
 
         int[] areas()
@@ -51,10 +68,13 @@ class Circulo extends Forma {
 
         void main()
             Circulo c;
+            boolean teste;
         {
             c = new Circulo(10, 3.0, 4.0);
             a = c.metodoLouco();
+            teste = c.metodoSobrescrito();
             Escreva c.toString();
             Escreva "Area: ", c.area();
+            Leia a;
         }
  }

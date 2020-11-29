@@ -312,7 +312,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   | return
 	;
  	
- atrib: ID arrayOuNao  '=' exp {
+ atrib: ID {atribuendoehArray = false;} arrayOuNao  '=' exp {
          TS_entry nodo;
           nodo = classeAtual.pesquisaAtributo((String)$1);
           if(nodo == null && metodoAtual != null)
@@ -326,12 +326,11 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                   }
               }
           }
-
-          if(nodo != null && nodo.getTipo() == Tp_ARRAY) {
-            validaTipo('=', nodo.getTipoBase(), (TS_entry)$4);
+          if(nodo != null && atribuendoehArray && nodo.getTipo() == Tp_ARRAY) {
+            validaTipo('=', nodo.getTipoBase(), (TS_entry)$5);
           }
           else if(nodo != null) {
-            validaTipo('=', nodo.getTipo(), (TS_entry)$4);
+            validaTipo('=', nodo.getTipo(), (TS_entry)$5);
           }
         } ;
 
@@ -485,6 +484,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   private boolean atribuendoehArray = false;
   private TS_entry arrayAtual = null;
   private int nReturns = 0;
+  private boolean foiArray = false;
   
 
 
@@ -532,6 +532,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
 
     ts = new TabSimb();
 
+    //ts.setListar(true);
   
     ts.insert(Tp_ERRO);
     ts.insert(Tp_INT);

@@ -5,10 +5,20 @@ import java.util.Iterator;
 public class TabSimb
 {
     private ArrayList<TS_entry> lista;
+    private boolean listar;
     
     public TabSimb( )
     {
+        this.listar = false;
         this.lista = new ArrayList<TS_entry>();
+    }
+
+    public boolean getListar() {
+      return this.listar;
+    }
+
+    public void setListar(boolean l) {
+      this.listar = l;
     }
     
     public void insert(TS_entry nodo) {
@@ -16,14 +26,17 @@ public class TabSimb
     }    
     
     public void listar() {
-      int cont = 0;  
-      System.out.println("\n\n# Listagem da tabela de simbolos:\n");
-      for (TS_entry nodo : lista) {
-          if(nodo.getClasse() == ClasseID.Classe) {
-            System.out.println("Classe: ");
-          }
-          System.out.println(nodo);
+      if(this.listar) {
+        int cont = 0;  
+        System.out.println("\n\n# Listagem da tabela de simbolos:\n");
+        for (TS_entry nodo : lista) {
+            if(nodo.getClasse() == ClasseID.Classe) {
+              System.out.println("Classe: ");
+            }
+            System.out.println(nodo);
+        }
       }
+      
     }
       
     public TS_entry pesquisa(String umId) {
