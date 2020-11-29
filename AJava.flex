@@ -103,7 +103,10 @@ extends {return Parser.EXTENDS;}
 \"[^\n]+\" { yyparser.yylval = new ParserVal(yytext().substring(1, yylength() -1));
 	     return Parser.LIT; }
 
-\/\/(.*)  // to remove comments
+"//".*                                    { /* DO NOTHING */ } // to remove comments
+
+[/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]       { /* DO NOTHING */ }
+[/][*]                                    { System.err.println("Error: unterminated comment"); return -1; }
 
 [^]    { System.err.println("Error: unexpected character '"+yytext()+"'"); return -1; }
 

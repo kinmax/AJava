@@ -29,7 +29,7 @@ class Circulo extends Forma {
                     break;
                 endIf
             endFor
-            break;
+            /* break; */
             return x;
         }
 
