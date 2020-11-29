@@ -19,7 +19,7 @@
 %}
 
 NUM = [0-9]+
-NUMDOUBLE = {NUM}+ ("." {NUM}+)?
+NUMDOUBLE = {NUM}+ ("." {NUM}+)
 NL  = \n | \r | \r\n
 
 %%
@@ -77,7 +77,6 @@ double  { return Parser.DOUBLE;   }
 boolean   { return Parser.BOOLEAN; }
 string   { return Parser.STRING; }
 void   { return Parser.VOID; }
-main   { return Parser.MAIN; }
 break   { return Parser.BREAK; }
 new   { return Parser.NEW; }
 private { return Parser.PRIVATE; }
@@ -95,7 +94,7 @@ false   { return Parser.FALSE; }
 Escreva { return Parser.ESCREVA; }
 Leia { return Parser.LEIA; }
 return { return Parser.RETURN; }
-extends {return Parser.EXTENDS}
+extends {return Parser.EXTENDS;}
 
 
 [a-zA-Z]+([a-zA-Z0-9]+)? { yyparser.yylval = new ParserVal(yytext());

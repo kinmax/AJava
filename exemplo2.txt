@@ -1,28 +1,52 @@
-class Circulo {
+class Forma {
     private:
-        int raio;
+    public:
+        int metodoLouco() {
+            return 1;
+        }
+}
+
+class Circulo extends Forma {
+    private:
+        int raio, a;
         double cx, cy;
     public:
-        Circulo(int r, double cx, double y) {
-            raio =r; cx = x; cy = y;
+        Circulo(int r, double x, double y) {
+            raio = r; cx = x; cy = y;
         }
 
         double area () {
             return 3.1415 * raio * raio;
         }
 
+        double area(double x) {
+            x = 4;
+            for x = 7 ; x >= 7 ; x = x + 1 :
+                a = 1;
+                if a == 5 :
+                    break;
+                else :
+                    break;
+                endIf
+            endFor
+            break;
+            return x;
+        }
+
         string toString()
             string aux;
         {		
-            aux = "circulo: raio: “+ raio +” (“+cx+”, “+cy+”)”;
+            aux = "circulo: raio: "+ raio +" ("+cx+", "+cy+")";
             return aux;
         }
+
 
         void main()
             Circulo c;
         {
             c = new Circulo(10, 3.0, 4.0);
+            a = c.metodoLouco();
             Escreva c.toString();
-            Escreva “Area: “, c.area();  
+            Escreva "Area: ", c.area();
         }
  }

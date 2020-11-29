@@ -24,13 +24,14 @@
 %type <ival> NUM
 %type <obj> tipo
 %type <obj> exp
-%type <obj> lvalue
+%type <obj> chamaMetodo
+%type <obj> chamaConstrutor
 
 
 
 %%
 
- prog: { currEscopo = "Global"; currClasse = ClasseID.VarGlobal; } lclasse 
+ prog: { currEscopo = "Global"; currClasse = ClasseID.VarGlobal; classeAtual = null; metodoAtual = null; } lclasse 
 	;
  
  lclasse: classe lclasse
@@ -38,22 +39,20 @@
 	;
  
  classe: CLASS ID {    
-                       TS_entry simb = ts.pesquisa((String)$2, ClasseID.Classe, "Global");
+                       TS_entry simb = ts.pesquisa((String)$2);
                       if(simb != null) {
-                        yyerror("(sem) classe <" + $2 + "> jah declarada"); 
-                        $$ = Tp_ERRO;
+                        yyerror("(sem) classe <" + $2 + "> jah declarada");
                       } else {
-                        ts.insert(new TS_entry((String)$2, Tp_OBJETO, ClasseID.Classe, currEscopo));
-                        currEscopo = (String)$2;
+                        TS_entry classe = new TS_entry((String)$2, Tp_OBJETO, ClasseID.Classe);
                         currClasse = ClasseID.Classe;
-                        classeAtual = ts.pesquisa((String)$2, ClasseID.Classe, "Global");
-                      }} extends '{' corpoclasse '}' {currEscopo = "Global"; currClasse = ClasseID.VarGlobal; classeAtual = null;} ;
+                        classeAtual = classe;
+                        ts.insert(classe);
+                      }} extends '{' corpoclasse '}' {currClasse = ClasseID.VarGlobal; classeAtual = null;} ;
 
 extends: EXTENDS ID {
-                      TS_entry simb = ts.pesquisa((String)$2, ClasseID.Classe, "Global");
+                      TS_entry simb = ts.pesquisa((String)$2);
                       if(simb == null) {
-                        yyerror("(sem) classe <" + $2 + "> nao declarada"); 
-                        $$ = Tp_ERRO;
+                        yyerror("(sem) classe <" + $2 + "> nao declarada");
                       } else {
                         classeAtual.setPai(simb);
                       }
@@ -69,35 +68,47 @@ extends: EXTENDS ID {
  	|
 	;
  	
- decl: tipo ID {  TS_entry simb = ts.pesquisa((String)$2, ClasseID.Atributo, currEscopo);
-                      if(simb != null) {
-                        yyerror("(sem) variável ou atributo <" + $2 + "> jah declarado no escopo"); 
-                        $$ = Tp_ERRO;
-                      } else {
-                        tipoAtual = $1;
-                        if(currClasse == ClasseID.Classe) {
-                          ts.insert(new TS_entry((String)$2, $1, ClasseID.Atributo, currEscopo));
-                          classeAtual.addAtributo(simb);
-                        } else if(currClasse == ClasseID.Metodo) {
-                          ts.insert(new TS_entry((String)$2, $1, ClasseID.VarLocal, currEscopo));
-                          metodoAtual.addVarLocal(simb);
-                        }
-                        
-                      }} lid ';' ;
+
+
+
+ decl: tipo ID {      TS_entry dec;
+                      if(metodoAtual == null) {
+                          dec = new TS_entry((String)$2, (TS_entry)$1, ClasseID.Atributo);
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
+                            classeAtual.addAtributo(dec);
+                          } else {
+                            yyerror("(sem) atributo <" + $2 + "> jah declarado no escopo");
+                          }
+                      }
+                      else {
+                          dec = new TS_entry((String)$2, (TS_entry)$1, ClasseID.VarLocal);
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && metodoAtual.pesquisaParametro(dec.getId()) == null) {
+                            metodoAtual.addVarLocal(dec);
+                          } else {
+                            yyerror("(sem) variavel <" + $2 + "> jah declarada no escopo");
+                          }
+                      }
+                      tipoAtual = (TS_entry)$1;
+                      
+                } lid ';' ;
  
- lid: ',' ID {  TS_entry simb = ts.pesquisa((String)$2, ClasseID.Atributo, currEscopo);
-                      if(simb != null) {
-                        yyerror("(sem) variável ou atributo <" + $2 + "> jah declarado no escopo"); 
-                        $$ = Tp_ERRO;
-                      } else {
-                        if(currClasse == ClasseID.Classe) {
-                          ts.insert(new TS_entry((String)$2, tipoAtual, ClasseID.Atributo, currEscopo));
-                          classeAtual.addAtributo(simb);
-                        } else if(currClasse == ClasseID.Metodo) {
-                          ts.insert(new TS_entry((String)$2, tipoAtual, ClasseID.VarLocal, currEscopo));
-                          metodoAtual.addVarLocal(simb);
-                        }
-                        
+ lid: ',' ID {        TS_entry dec;
+                      if(metodoAtual == null) {
+                          dec = new TS_entry((String)$2, tipoAtual, ClasseID.Atributo);
+
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
+                            classeAtual.addAtributo(dec);
+                          } else {
+                            yyerror("(sem) atributo <" + $2 + "> jah declarado no escopo");
+                          }
+                      }
+                      else {
+                          dec = new TS_entry((String)$2, tipoAtual, ClasseID.VarLocal);
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && metodoAtual.pesquisaParametro(dec.getId()) == null) {
+                            metodoAtual.addVarLocal(dec);
+                          } else {
+                            yyerror("(sem) variavel <" + $2 + "> jah declarada no escopo");
+                          }
                       }} lid
       | 
 	  ;
@@ -114,29 +125,53 @@ extends: EXTENDS ID {
 	; 
  
  metconst: ID {
-                if(!(((String)$2).equals(classeAtual.getId()))) {
-                      yyerror("(sem) metodo nao construtor <" + $2 + "> sem modificador de tipo"); 
-                      $$ = Tp_ERRO;
+                if(!(((String)$1).equals(classeAtual.getId()))) {
+                      yyerror("(sem) metodo nao construtor <" + $1 + "> sem modificador de tipo");
                 } else {
-                  metodoAtual = new TS_entry(String($2), Tp_CONSTRUTOR, ClasseID.Metodo, currEscopo);
+                  metodoAtual = new TS_entry((String)$1, Tp_CONSTRUTOR, ClasseID.Metodo);
                   currClasse = ClasseID.Metodo;
-                  currEscopo = metodoAtual.getId();
 
-                }} '(' lparam ')' ldecl '{' corpomet '}' {currEscopo = classeAtual.getId(); currClasse = ClasseID.Classe; metodoAtual = null;} ;
+                }} '(' lparam ')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
+                                                          if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
+                                                            classeAtual.addMetodo(metodoAtual);
+                                                          } else {
+                                                            yyerror("(sem) metodo <" + $1 + "> com assinatura repetida na classe");
+                                                          }
+                                                          metodoAtual = null;} ;
   
  metnormal: tipo ID {
-                  metodoAtual = new TS_entry((String)$2, (TS_entry)$1, ClasseID.Metodo, currEscopo);
-                  currClasse = ClasseID.Metodo;
-                  currEscopo = metodoAtual.getId();
+                  if(((String)$2).equals("main")) {
+                    yyerror("(sem) metodo main deve ser void");
+                  } else {
+                    metodoAtual = new TS_entry((String)$2, (TS_entry)$1, ClasseID.Metodo);
+                    currClasse = ClasseID.Metodo;
+                  }
 
-            } '('lparam')' ldecl '{' corpomet return '}' {currEscopo = classeAtual.getId(); currClasse = ClasseID.Classe; metodoAtual = null;} ;
+            } '('lparam')' ldecl '{' corpomet return '}' {currClasse = ClasseID.Classe;
+                                                          if(metodoAtual != null) {
+                                                            if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
+                                                              classeAtual.addMetodo(metodoAtual);
+                                                            } else {
+                                                              yyerror("(sem) metodo <" + $2 + "> com assinatura repetida na classe");
+                                                            }
+                                                          }                                                          
+                                                          metodoAtual = null;} ;
  
  metvoid: VOID ID {
-                  metodoAtual = new TS_entry((String)$2, Tp_VOID, ClasseID.Metodo, currEscopo);
+                  metodoAtual = new TS_entry((String)$2, Tp_VOID, ClasseID.Metodo);
                   currClasse = ClasseID.Metodo;
-                  currEscopo = metodoAtual.getId();
 
-            } '(' lparam ')' ldecl '{' corpomet '}' {currEscopo = classeAtual.getId(); currClasse = ClasseID.Classe; metodoAtual = null;} ;
+            } '(' lparam ')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
+                                                          if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
+                                                            if(metodoAtual.getAssinatura().contains("main") && metodoAtual.getAssinatura().length() > 4) {
+                                                              yyerror("(sem) metodo main nao pode ter parametros");
+                                                            } else {
+                                                              classeAtual.addMetodo(metodoAtual);
+                                                            }                                                            
+                                                          } else {
+                                                            yyerror("(sem) metodo <" + $2 + "> com assinatura repetida na classe");
+                                                          }
+                                                          metodoAtual = null;} ;
  
  lparam: param sublparam
  	|
@@ -145,25 +180,33 @@ extends: EXTENDS ID {
  param: tipo ID {
           if(metodoAtual.parametroRepetido((String)$2))
           {
-              yyerror("(sem) parametro repetido <" + $2 + "> no metodo <" + metodoAtual.getId() + ">"); 
-              $$ = Tp_ERRO;
+              yyerror("(sem) parametro repetido <" + $2 + "> no metodo <" + metodoAtual.getId() + ">");
           }
           else
           {
-            metodoAtual.addParametro(new TS_entry((String)$2, (TS_entry)$1, ClasseID.Parametro, currEscopo));
-            currEscopo = metodoAtual.getEscopo();
+            assinaturaAtual += " " + ((TS_entry)$1).getTipoStr();
+            metodoAtual.addParametro(new TS_entry((String)$2, (TS_entry)$1, ClasseID.Parametro));
           }
         } ;
  
  sublparam: ',' param sublparam
 	|
 	;
+
+  lparamchamada: exp { assinaturaAtual += " " + ((TS_entry)$1).getTipoStr();
+  } sublparamchamada
+ 	|
+	;
+ 
+ sublparamchamada: ',' exp { assinaturaAtual += " " + ((TS_entry)$2).getTipoStr();
+  } sublparamchamada
+	|
+	;
 	
  return: RETURN exp {
-            if(exp != metodoAtual.getTipo())
+            if((TS_entry)$2 != metodoAtual.getTipo())
             {
-              yyerror("(sem) tipo de retorno <" + ((TS_entry)$1).getTipoStr() + "> incompativel com metodo <" + metodoAtual.getId() + ">"); 
-              $$ = Tp_ERRO;
+              yyerror("(sem) tipo de retorno <" + ((TS_entry)$2).getTipoStr() + "> incompativel com metodo <" + metodoAtual.getId() + ">");
             } 
          }  ';' ;
 
@@ -175,6 +218,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp '/' exp { $$ = validaTipo('/', (TS_entry)$1, (TS_entry)$3); }
    	| exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3);}
     | exp '<' exp { $$ = validaTipo('<', (TS_entry)$1, (TS_entry)$3);}
+    | exp '%' exp { $$ = validaTipo('%', (TS_entry)$1, (TS_entry)$3);}
  	  | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); }
     | exp OR exp  { $$ = validaTipo(OR, (TS_entry)$1, (TS_entry)$3); }
     | exp LEQ exp { $$ = validaTipo(LEQ, (TS_entry)$1, (TS_entry)$3); }
@@ -187,145 +231,198 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | FALSE     { $$ = Tp_BOOLEAN; } 
     | LIT     { $$ = Tp_LITERAL; } 
     | '(' exp ')' { $$ = $2; }
-    | ID       { TS_entry nodo = ts.pesquisa($1, ClasseID.Atributo, classeAtual.getEscopo());
-                    if (nodo == null) {
-                       nodo = ts.pesquisa($1, ClasseID.Parametro, metodoAtual.getEscopo());
-                       if (nodo == null) {
-                         nodo = ts.pesquisa($1, ClasseID.VarLocal, metodoAtual.getEscopo());
-                         if (nodo == null) {
-                          yyerror("(sem) variavel ou atributo <" + $1 + "> nao declarado ou fora de escopo"); 
-                          $$ = Tp_ERRO;    
-                         } else {
-                           $$ = nodo.getTipo();
-                         }
-                       } else {
-                         $$ = nodo.getTipo();
-                       }
-                       
-                    }           
-                    else
-                        $$ = nodo.getTipo();
-                  }                   
-     | lvalue '=' exp  {  $$ = validaTipo('=', (TS_entry)$1, (TS_entry)$3);  } 
-     | chamaMetodo
+    | ID       { TS_entry nodo;
+                  nodo = classeAtual.pesquisaAtributo((String)$1);
+                  if(nodo == null && metodoAtual != null)
+                  {
+                      nodo = metodoAtual.pesquisaVarLocal((String)$1);
+                      if(nodo == null)
+                      {
+                          nodo = metodoAtual.pesquisaParametro((String)$1);
+                          if(nodo == null) {
+                            yyerror("(sem) var ou atributo <" + $1 + "> nao declarado ou fora do escopo");
+                            $$ = Tp_ERRO;
+                          }
+                      }
+                  }
+                  if(nodo != null) {
+                    $$ = nodo.getTipo();
+                  }
+                }     
+     | chamaMetodo { $$ = $1; }
+     | NEW chamaConstrutor {if($2 != Tp_CONSTRUTOR) {
+        yyerror("(sem) somente construtores podem ser chamados com new");
+          $$ = Tp_ERRO;
+     } else {
+       $$ = classeConstrutor;
+       classeConstrutor = null;
+     }}
     ;
-
-lvalue: ID {TS_entry simb = ts.pesquisa($1);
-            if(simb == null)
-            {
-                yyerror("(sem) var <" + $1 + "> nao declarada"); 
-                $$ = Tp_ERRO; 
-            } else{
-              if(currEscopo.equals(simb.getEscopo()) {
-                return simb.getTipo();
-              } else {
-                yyerror("(sem) var <" + $1 + "> fora do escopo"); 
-                $$ = Tp_ERRO;
-              })
-            }}
-;  
  
- corpomet: lcmd ;
+ corpomet: lcmdloop ;
  	
  	
  lcmd: cmd lcmd 
  	| 
   ;
  
- cmd: atrib
+ cmd: atrib ';'
  	| escrita
  	| leia
  	| if
  	| while
  	| for
-  | break
 	;
  	
- atrib: ID {
-          if(ts.pesquisa((String)$1, ClasseID.Atributo, classeAtual.getEscopo()) == null || ts.pesquisa((String)$1, ClasseID.VarLocal, metodoAtual.getEscopo()) == null)
+ atrib: ID  '=' exp {
+         TS_entry nodo;
+          nodo = classeAtual.pesquisaAtributo((String)$1);
+          if(nodo == null && metodoAtual != null)
           {
-              yyerror("(sem) var ou atributo <" + $1 + "> nao declarado ou fora do escopo"); 
-              $$ = Tp_ERRO;
-          }
-        } '=' exp {
-          TS_entry nodo;
-          nodo = ts.pesquisa((String)$1, ClasseID.Atributo, classeAtual.getEscopo());
-          if(nodo == null) {
-            ts.pesquisa((String)$1, ClasseID.VarLocal, metodoAtual.getEscopo())
-            if(nodo != null) {
-              if(nodo.getTipo() != (TS_entry)$3) {
-                yyerror("(sem) Tipos incompativeis para atribuição: " + getTipoStr($3) + " e " + getTipoStr(nodo.getTipo())); 
-                $$ = Tp_ERRO;
+              nodo = metodoAtual.pesquisaVarLocal((String)$1);
+              if(nodo == null)
+              {
+                  nodo = metodoAtual.pesquisaParametro((String)$1);
+                  if(nodo == null) {
+                    yyerror("(sem) var ou atributo <" + $1 + "> nao declarado ou fora do escopo");
+                  }
               }
-            }
-          } else {
-            if(nodo.getTipo() != (TS_entry)$3) {
-                yyerror("(sem) Tipos incompativeis para atribuição: " + getTipoStr($3) + " e " + getTipoStr(nodo.getTipo())); 
-                $$ = Tp_ERRO;
-            }
           }
-        } ';' ;
+
+          if(nodo != null) {
+            validaTipo('=', nodo.getTipo(), (TS_entry)$3);
+          }
+        } ;
+
+ escrita: ESCREVA restoEscrita ;
+
+ restoEscrita: 
+               exp contescrita ';' { if($1 != Tp_LITERAL) yyerror("(sem) primeiro operador da escrita precisa ser do tipo string "); }
  
- escrita: ESCREVA LIT contescrita ';' ;
- 
- contescrita: ',' exp
+ contescrita: ',' exp {
+   if ($2 != Tp_BOOLEAN && $2 != Tp_INT && $2 != Tp_DOUBLE && $2 != Tp_LITERAL ){
+      yyerror("tipo da expressao deve ser um tipo base: int, double, boolean ou string");}
+    }
 	|
 	;
 
  leia: LEIA ID {
           TS_entry nodo;
-          nodo = ts.pesquisa((String)$1, ClasseID.VarGlobal, "Global");
-          if(nodo == null) {
-            ts.pesquisa((String)$1, ClasseID.Atributo, classeAtual.getEscopo())
-            if(nodo == null) {
-              nodo = ts.pesquisa((String)$1, ClasseID.VarLocal, metodoAtual.getEscopo());
-              if(nodo == null) {
-                yyerror("(sem) var <" + $1 + "> nao declarada ou fora do escopo"); 
-                $$ = Tp_ERRO;
-              }              
-            }
+          nodo = classeAtual.pesquisaAtributo((String)$2);
+          if(nodo == null && metodoAtual != null)
+          {
+              nodo = metodoAtual.pesquisaVarLocal((String)$2);
+              if(nodo == null)
+              {
+                  nodo = metodoAtual.pesquisaParametro((String)$2);
+                  if(nodo == null) {
+                    yyerror("(sem) var ou atributo <" + $2 + "> nao declarado ou fora do escopo");
+                  }
+              }
           }
         } ';' ;
  
  if: IF exp {
           if((TS_entry)$2 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de IF"); 
-              $$ = Tp_ERRO;
+              yyerror("(sem) expressao nao booleana em condicao de IF");
           }
-         } ':' lcmd else ENDIF ;
+         } ':' lcmdloop else ;
  
- else: ELSE ':' lcmd
- 	|
+ else: ELSE ':' lcmdloop ENDIF ;
+ 	| ENDIF ;
 	;
 
  while: WHILE exp {
           if((TS_entry)$2 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de WHILE"); 
-              $$ = Tp_ERRO;
+              yyerror("(sem) expressao nao booleana em condicao de WHILE");
           }
-         } ':' lcmd endwhile ENDWHILE ;
+         } ':' {loopLevel++;} lcmdloop ENDWHILE {loopLevel--;} ;
  
- for: FOR ID '=' atrib ';' exp {
-          if((TS_entry)$2 != Tp_BOOLEAN) {
-              yyerror("(sem) expressao nao booleana em condicao de WHILE"); 
-              $$ = Tp_ERRO;
+ for: FOR atrib  ';' exp {
+          if((TS_entry)$4 != Tp_BOOLEAN) {
+              yyerror("(sem) expressao nao booleana em condicao de FOR");
           }
-         } ';' atrib ':' lcmd ENDFOR ;
+         } ';' atrib ':' {loopLevel++;} lcmdloop ENDFOR {loopLevel--;} ;
+
 
  break: BREAK ';' ;
  
- chamaMetodo: ID '.' ID '(' lparam')' ;
+ lcmdloop: cmd lcmdloop
+          | break lcmdloop; {if(loopLevel == 0) yyerror("(sem) break fora de loop");}
+          | 
+          ;
  
- tipo: INT
- 	| DOUBLE
- 	| STRING
- 	| BOOLEAN
- 	| ID
+ chamaMetodo: ID '.' ID {assinaturaAtual = (String)$3;} '(' lparamchamada')' {
+          TS_entry nodo;
+          nodo = classeAtual.pesquisaAtributo((String)$1);
+          if(nodo == null && metodoAtual != null)
+          {
+              nodo = metodoAtual.pesquisaVarLocal((String)$1);
+              if(nodo == null)
+              {
+                  nodo = metodoAtual.pesquisaParametro((String)$1);
+                  if(nodo == null) {
+                    yyerror("(sem) objeto <" + $1 + "> nao declarado ou fora do escopo");
+                    $$ = Tp_ERRO;
+                  }
+              }
+          }
+
+          if(nodo != null) {
+            if(nodo.getTipo().getTipo() == Tp_OBJETO){
+              if (nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual) == null) {
+                yyerror("(sem) a classe do objeto <" + $1 + "> nao possui o metodo <" + $3 + "> com esses parametros");
+                $$ = Tp_ERRO;
+              } else {
+                $$ = nodo.getTipo().pesquisaMetodoHeranca(assinaturaAtual).getTipo();
+              }
+            }
+            else
+            {
+              yyerror("(sem) objeto <" + $1 + "> nao eh um objeto");
+              $$ = Tp_ERRO;
+            }
+          } else {
+            $$ = Tp_ERRO;
+          }
+   };
+
+ chamaConstrutor: ID {assinaturaAtual = (String)$1;} '(' lparamchamada ')' {
+   TS_entry classe = ts.pesquisa($1);
+   if(classe == null) {
+        yyerror("(sem) chamada de construtor <" + $1 + "> para classe nao definida");
+        $$ = Tp_ERRO;
+   } else {
+     TS_entry met = classe.pesquisaMetodoHeranca(assinaturaAtual);
+     if(met == null) {
+       yyerror("(sem) construtor <" + $1 + "> com assinatura nao definida");
+        $$ = Tp_ERRO;
+     } else if(met.getTipo() != Tp_CONSTRUTOR){
+       yyerror("(sem) construtor <" + $1 + "> com assinatura nao definida");
+        $$ = Tp_ERRO;
+     } else {
+       $$ = Tp_CONSTRUTOR;
+       classeConstrutor = classe;
+     }
+   }
+ };
+ 
+ tipo: INT {$$ = Tp_INT;}
+ 	| DOUBLE {$$ = Tp_DOUBLE;}
+ 	| STRING {$$ = Tp_LITERAL;}
+ 	| BOOLEAN {$$ = Tp_BOOLEAN;}
+ 	| ID {
+     TS_entry nodo = ts.pesquisa((String)$1);
+     if(nodo == null) {
+       yyerror("(sem) tipo <" + $1 + "> nao definido");
+       $$ = Tp_ERRO;
+     }
+     else {
+       $$ = nodo;
+     }
+   }
 	;
 %%
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
   private Yylex lexer;
 
@@ -333,11 +430,13 @@ import java.util.HashMap;
 
   private String currEscopo;
   private ClasseID currClasse;
-  private TabSimb ts;
   private TS_entry classeAtual;
   private TS_entry metodoAtual;
   private TS_entry tipoAtual;
   private boolean metodoMesmoNome = false;
+  private String assinaturaAtual;
+  private TS_entry classeConstrutor = null;
+  int loopLevel = 0;
   
 
 
@@ -381,10 +480,6 @@ import java.util.HashMap;
   public Parser(Reader r) {
     metodoMesmoNome = false;
     lexer = new Yylex(r, this);
-
-    classes = new ArrayList<String>();
-
-    herancas = new HashMap<String, String>();
 
     ts = new TabSimb();
 
@@ -486,6 +581,13 @@ import java.util.HashMap;
                         yyerror("(sem) tipos incomp. para multiplicacao: "+ A.getTipoStr() + " + "+B.getTipoStr());
                     break;
 
+             case '%' :
+                    if ( A == Tp_INT && B == Tp_INT)
+                          return Tp_INT;
+                    else
+                        yyerror("(sem) tipos incomp. para multiplicacao: "+ A.getTipoStr() + " + "+B.getTipoStr());
+                    break;
+
              case '>' :
                      if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL))
                          return Tp_BOOLEAN;
@@ -513,25 +615,25 @@ import java.util.HashMap;
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " || "+B.getTipoStr());
 
                case EQ:
-                     if (A == B)
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " == "+B.getTipoStr());
 
                 case NEQ:
-                     if (A == B)
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " != "+B.getTipoStr());
 
                 case LEQ:
-                     if (A == B)
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " <= "+B.getTipoStr());
 
                 case GEQ:
-                     if (A == B)
+                     if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " >= "+B.getTipoStr());

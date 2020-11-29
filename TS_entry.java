@@ -17,12 +17,15 @@ public class TS_entry
    private ArrayList<TS_entry> metodos; // se for classe
    private ArrayList<TS_entry> atributos; // se for classe
    private TS_entry classePai; // se for classe e tiver herdado de alguma outra
+   private TS_entry classeDona; // se for método
+   private TS_entry tipoClasse; // se for um objeto de alguma classe ou método que retorna um objeto de alguma classe
+   private String assinatura; // para metodos
 
    // construtor geral
    public TS_entry(String umId, TS_entry umTipo, ClasseID umaClasse, String umEscopo) {      
       this.id = umId;
       this.tipo = umTipo;
-      this.clasee = umaClasse;
+      this.classe = umaClasse;
       this.escopo = umEscopo;
 
       this.parametros = null;
@@ -30,6 +33,8 @@ public class TS_entry
       this.metodos = null;
       this.atributos = null;
       this.classePai = null;
+      this.classeDona = null;
+      this.tipoClasse = null;
 
       if(classe.equals(ClasseID.Metodo)) {
          this.parametros = new ArrayList<TS_entry>();
@@ -41,11 +46,35 @@ public class TS_entry
       }
    }
 
+   public TS_entry(String umId, TS_entry umTipo, ClasseID umaClasse) {      
+      this.id = umId;
+      this.tipo = umTipo;
+      this.classe = umaClasse;
+
+      this.parametros = null;
+      this.varsLocais = null;
+      this.metodos = null;
+      this.atributos = null; 
+      this.classePai = null;
+      this.classeDona = null;
+      this.tipoClasse = null;
+
+      if(classe.equals(ClasseID.Metodo)) {
+         this.parametros = new ArrayList<TS_entry>();
+         this.varsLocais = new ArrayList<TS_entry>();
+         this.assinatura = this.id;
+      }
+      else if(classe.equals(ClasseID.Classe)) {
+         this.metodos = new ArrayList<TS_entry>();
+         this.atributos = new ArrayList<TS_entry>();
+      }
+   }
+
    // construtor para classe filha
    public TS_entry(String umId, TS_entry umTipo, ClasseID umaClasse, String umEscopo, TS_entry pai) {      
       this.id = umId;
       this.tipo = umTipo;
-      this.clasee = umaClasse;
+      this.classe = umaClasse;
       this.escopo = umEscopo;
 
       this.parametros = null;
@@ -81,8 +110,36 @@ public class TS_entry
       return classe;
    }
 
+   public TS_entry getPai() {
+      return this.classePai;
+   }
+
    public void setPai(TS_entry pai) {
-      this.pai = pai;
+      this.classePai = pai;
+   }
+
+   public TS_entry getClasseDona() {
+      return this.classeDona;
+   }
+
+   public void setClasseDona(TS_entry dona) {
+      this.classeDona = dona;
+   }
+
+   public TS_entry getTipoClasse() {
+      return this.tipoClasse;
+   }
+
+   public void setTipoClasse(TS_entry tipo) {
+      this.tipoClasse = tipo;
+   }
+
+   public String getAssinatura() {
+      return this.assinatura;
+   }
+
+   public void setAssinatura(String ass) {
+      this.assinatura = ass;
    }
 
    public void addToEscopo(String esc) {
@@ -95,8 +152,11 @@ public class TS_entry
 
    public boolean parametroRepetido(String idParam) {
       for(TS_entry e: this.parametros) {
-         if(idParam.equals(e.getId()))
+         if(idParam.equals(e.getId())) {
+            return true;
+         }
       }
+      return false;
    }
 
    public void addAtributo(TS_entry attr) {
@@ -118,17 +178,82 @@ public class TS_entry
    }
 
    public void addParametro(TS_entry param) {
-      if(param.classe == ClasseID.Parametro) {
+      if(param.getClasse() == ClasseID.Parametro) {
          this.parametros.add(param);
       }
-      this.addToEscopo(param.getId());
-      for(TS_entry e: this.parametros) {
-         e.setEscopo(this.escopo);
+      if(param.getTipo().getClasse() == ClasseID.Classe)
+      {
+         this.assinatura += " " + param.getTipo().getId();
+      }
+      else
+      {
+         this.assinatura += " " + param.getTipoStr();
       }
    }
 
    public ArrayList<TS_entry> getParametros() {
       return this.parametros;
+   }
+
+   public TS_entry pesquisaAtributo(String attrid) {
+      for(TS_entry e: this.atributos) {
+         if(e.getId().equals(attrid))
+         {
+            return e;
+         }
+      }
+      return null;
+   }
+
+   public TS_entry pesquisaMetodo(String ass) {
+      for(TS_entry e: this.metodos) {
+         if(e.getAssinatura().equals(ass))
+         {
+            return e;
+         }
+      }
+
+      return null;
+   }
+
+   public TS_entry pesquisaMetodoHeranca(String ass) {
+      for(TS_entry e: this.metodos) {
+         if(e.getAssinatura().equals(ass))
+         {
+            return e;
+         }
+      }
+
+      if(classePai != null)
+      {
+         return this.classePai.pesquisaMetodo(ass);
+      }
+
+      return null;
+   }
+
+   public TS_entry pesquisaVarLocal(String varid) {
+      for(TS_entry e: this.varsLocais) {
+         if(e.getId().equals(varid))
+         {
+            return e;
+         }
+      }
+      return null;
+   }
+
+   public TS_entry pesquisaParametro(String paramid) {
+      for(TS_entry e: this.parametros) {
+         if(e.getId().equals(paramid))
+         {
+            return e;
+         }
+      }
+      return null;
+   }
+
+   public ArrayList<TS_entry> getMetodos() {
+      return this.metodos;
    }
    
     
@@ -161,12 +286,12 @@ public class TS_entry
       else if (tipo==Parser.Tp_LITERAL)  return "literal";
       else if (tipo==Parser.Tp_OBJETO)  return "objeto";
       else if (tipo==Parser.Tp_VOID)  return "void";
-      else if (tipo.getTipo() != null) return  String.format("array(%d,%s)",
-                                                   tipo.nroElementos, 
-                                                      tipo2str(tipo.tipoBase));
+      // else if (tipo.getTipo() != null) return  String.format("array(%d,%s)",
+      //                                              tipo.nroElementos, 
+      //                                                 tipo2str(tipo.tipoBase));
                   
       else if (tipo==Parser.Tp_ERRO)  return  "_erro_";
-      else                             return "erro/tp";
+      else                             return tipo.tipo2str(tipo.getTipo());
    }
 
    @Override
@@ -176,7 +301,7 @@ public class TS_entry
       }
 
       TS_entry entry = (TS_entry)o;
-      if(entrgetId().equals(this.id) && entry.getClasse().equals(this.classe) && entry.getTipo() == this.tipo && entry.getEscopo().equals(this.escopo))
+      if(entry.getId().equals(this.id) && entry.getClasse().equals(this.classe) && entry.getTipo() == this.tipo && entry.getEscopo().equals(this.escopo))
       {
          return true;
       }
