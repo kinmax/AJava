@@ -164,6 +164,9 @@ arrayOuNao: '[' NUM ']' {
                   if(((String)$4).equals("main")) {
                     yyerror("(sem) método main deve ser void");
                   } else {
+                    if(ts.pesquisa((String)$4) != null) {
+                      yyerror("(sem) método <" + $4 + "> com identificador inválido - usado por classe");
+                    }
                     metodoAtual = new TS_entry((String)$4, tipoAtual, ClasseID.Metodo);
                     metodoAtual.setTipoBase(tipoBaseAtual);
                     currClasse = ClasseID.Metodo;
@@ -186,6 +189,9 @@ arrayOuNao: '[' NUM ']' {
  
  metvoid: VOID ID {
                   toNaMain = ((String)$2).equals("main");
+                  if(ts.pesquisa((String)$2) != null) {
+                      yyerror("(sem) método <" + $2 + "> com identificador inválido - usado por classe");
+                    }
                   metodoAtual = new TS_entry((String)$2, Tp_VOID, ClasseID.Metodo);
                   currClasse = ClasseID.Metodo;
 
