@@ -1,0 +1,26 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
+class Classe {
+    private:
+    public:
+        void main() 
+            boolean x, y;
+            int a, b;
+        {
+            break;
+            for a < 0; a + b; a == 1 :
+                while x / 5 :
+                    if b - 5 :
+                        break;
+                    endIf
+                endWhile
+                if a * 3 :
+                    break;
+                endIf
+            endFor
+        }
+}

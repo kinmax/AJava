@@ -1,0 +1,52 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
+class Classe1 {
+    private:
+        int a, b, c;
+    public:
+        Classe1() {
+            a = 0; b = 0; c = 0;
+        }
+
+        int soma() {
+            return a + b + c;
+        }
+
+        int subtrai() {
+            return a - b - c;
+        }
+}
+
+class Classe2 extends Classe1 {
+    private:
+        int a, b, c;
+    public:
+        Classe2() {
+            a = 0; b = 0; c = 0;
+        }
+
+        int soma() {
+            return a + b;
+        }
+
+        int soma(int e, int f) {
+            return e + f;
+        }
+
+        void main() 
+            Classe2 x;
+            Classe1 y;
+        {
+            x = new Classe2();
+            y = new Classe1();
+            x.soma();
+            b = x.soma(1, 2);
+            x.subtrai();
+            y.subtrai();
+            y.soma();
+        }
+}

@@ -24,6 +24,12 @@ NL  = \n | \r | \r\n
 
 %%
 
+/*
+KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
 
 "$TRACE_ON"  { yyparser.setDebug(true);  }
 "$TRACE_OFF" { yyparser.setDebug(false); }
@@ -100,7 +106,7 @@ extends {return Parser.EXTENDS;}
 [a-zA-Z]+([a-zA-Z0-9]+)? { yyparser.yylval = new ParserVal(yytext());
             return Parser.ID; }
 
-\"[^\n]+\" { yyparser.yylval = new ParserVal(yytext().substring(1, yylength() -1));
+\"[^\n]*\" { yyparser.yylval = new ParserVal(yytext().substring(1, yylength() -1));
 	     return Parser.LIT; }
 
 "//".*                                    { /* DO NOTHING */ } // to remove comments

@@ -1,4 +1,10 @@
 	
+/*
+KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
 %{
   import java.io.*;
   import java.util.ArrayList;
@@ -74,7 +80,7 @@ extends: EXTENDS ID {
  decl: tipo ID {      TS_entry dec;
                       if(metodoAtual == null) {
                           dec = new TS_entry((String)$2, (TS_entry)$1, ClasseID.Atributo);
-                          if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && ts.pesquisa(dec.getId()) == null) {
                             classeAtual.addAtributo(dec);
                           } else {
                             yyerror("(sem) atributo <" + $2 + "> já declarado no escopo");
@@ -82,7 +88,7 @@ extends: EXTENDS ID {
                       }
                       else {
                           dec = new TS_entry((String)$2, (TS_entry)$1, ClasseID.VarLocal);
-                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null) {
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && ts.pesquisa(dec.getId()) == null) {
                             metodoAtual.addVarLocal(dec);
                           } else {
                             yyerror("(sem) variável <" + $2 + "> já declarada no escopo");
@@ -94,7 +100,9 @@ extends: EXTENDS ID {
                 } arrayOuNao  lid ';' {declAtual = null;} ;
 
 arrayOuNao: '[' NUM ']' {
-    atribuendoehArray = true;
+    if(atributoAtual != null && atributoAtual.getTipo() != Tp_ARRAY) {
+      yyerror("(sem) variavel não é indexada");
+    }
     if(declAtual != null) {
       declAtual.setTipoBase(declAtual.getTipo());
       declAtual.setTipo(Tp_ARRAY);
@@ -109,7 +117,7 @@ arrayOuNao: '[' NUM ']' {
                       if(metodoAtual == null) {
                           dec = new TS_entry((String)$2, tipoAtual, ClasseID.Atributo);
 
-                          if(classeAtual.pesquisaAtributo(dec.getId()) == null) {
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && ts.pesquisa(dec.getId()) == null) {
                             classeAtual.addAtributo(dec);
                           } else {
                             yyerror("(sem) atributo <" + $2 + "> já declarado no escopo");
@@ -117,7 +125,7 @@ arrayOuNao: '[' NUM ']' {
                       }
                       else {
                           dec = new TS_entry((String)$2, tipoAtual, ClasseID.VarLocal);
-                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && metodoAtual.pesquisaParametro(dec.getId()) == null) {
+                          if(classeAtual.pesquisaAtributo(dec.getId()) == null && metodoAtual.pesquisaVarLocal(dec.getId()) == null && ts.pesquisa(dec.getId()) == null) {
                             metodoAtual.addVarLocal(dec);
                           } else {
                             yyerror("(sem) variável <" + $2 + "> já declarada no escopo");
@@ -164,7 +172,7 @@ arrayOuNao: '[' NUM ']' {
 
             } '('lparam')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
                                                           if(metodoAtual != null) {
-                                                            if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
+                                                            if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null && ts.pesquisa(metodoAtual.getId()) == null) {
                                                               classeAtual.addMetodo(metodoAtual);
                                                             } else {
                                                               yyerror("(sem) método <" + $4 + "> com assinatura repetida na classe");
@@ -177,11 +185,12 @@ arrayOuNao: '[' NUM ']' {
                                                           metodoAtual = null; nReturns = 0;} ;
  
  metvoid: VOID ID {
+                  toNaMain = ((String)$2).equals("main");
                   metodoAtual = new TS_entry((String)$2, Tp_VOID, ClasseID.Metodo);
                   currClasse = ClasseID.Metodo;
 
             } '(' lparam ')' ldecl '{' corpomet '}' {currClasse = ClasseID.Classe;
-                                                          if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null) {
+                                                          if(classeAtual.pesquisaMetodo(metodoAtual.getAssinatura()) == null && ts.pesquisa(metodoAtual.getId()) == null) {
                                                             if(metodoAtual.getAssinatura().contains("main") && metodoAtual.getAssinatura().length() > 4) {
                                                               yyerror("(sem) método main nao pode ter parâmetros");
                                                             } else {
@@ -190,7 +199,7 @@ arrayOuNao: '[' NUM ']' {
                                                           } else {
                                                             yyerror("(sem) método <" + $2 + "> com assinatura repetida na classe");
                                                           }
-                                                          metodoAtual = null;} ;
+                                                          metodoAtual = null; toNaMain = false;} ;
 
 arrayMetodoOuNao: '[' ']' {tipoBaseAtual = tipoAtual; tipoAtual = Tp_ARRAY;}
 |
@@ -255,14 +264,24 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp GEQ exp { $$ = validaTipo(GEQ, (TS_entry)$1, (TS_entry)$3); }
     | exp EQ exp { $$ = validaTipo(EQ, (TS_entry)$1, (TS_entry)$3); }
     | exp NEQ exp { $$ = validaTipo(NEQ, (TS_entry)$1, (TS_entry)$3); }
+    | '!' exp { if((TS_entry)$2 != Tp_BOOLEAN) {
+                yyerror("(sem) tipo do operando não compatível com operador de negação, deveria ser boolean");
+                $$ = Tp_ERRO; 
+              } 
+              else {
+                $$ = Tp_BOOLEAN;
+              } 
+            }
     | NUM         { $$ = Tp_INT; }
     | NUMDOUBLE         { $$ = Tp_DOUBLE; } 
     | TRUE     { $$ = Tp_BOOLEAN; }  
     | FALSE     { $$ = Tp_BOOLEAN; } 
     | LIT     { $$ = Tp_LITERAL; } 
     | '(' exp ')' { $$ = $2; }
-    | ID       { TS_entry nodo;
-                  nodo = classeAtual.pesquisaAtributo((String)$1);
+    | ID       { TS_entry nodo = null;
+                  if(!toNaMain){
+                    nodo = classeAtual.pesquisaAtributo((String)$1);
+                  }
                   if(nodo == null && metodoAtual != null)
                   {
                       nodo = metodoAtual.pesquisaVarLocal((String)$1);
@@ -278,6 +297,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                   if(nodo != null) {
                     $$ = nodo.getTipo();
                     if(nodo.getTipo() == Tp_ARRAY) {
+                      tipoBaseAtual = nodo.getTipoBase();
                       arrayAtual = nodo;
                     }
                   }
@@ -289,6 +309,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                                   System.out.println((TS_entry)$1);
                                   yyerror("(sem) elemento não indexado "); }
                                else 
+                                  tipoBaseAtual = arrayAtual.getTipoBase();
                                   $$ = arrayAtual.getTipoBase();
                          } 
      | chamaMetodo { $$ = $1; }
@@ -310,29 +331,60 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
  	| while
  	| for
   | return
+  | chamaMetodo ';'
 	;
  	
- atrib: ID {atribuendoehArray = false;} arrayOuNao  '=' exp {
-         TS_entry nodo;
-          nodo = classeAtual.pesquisaAtributo((String)$1);
-          if(nodo == null && metodoAtual != null)
-          {
-              nodo = metodoAtual.pesquisaVarLocal((String)$1);
-              if(nodo == null)
-              {
-                  nodo = metodoAtual.pesquisaParametro((String)$1);
-                  if(nodo == null) {
-                    yyerror("(sem) variável ou atributo <" + $1 + "> não declarado(a) ou fora do escopo");
-                  }
-              }
+ atrib: ID {atribuendoehArray = false;
+            TS_entry nodo = null;
+            if(!toNaMain) {
+              nodo = classeAtual.pesquisaAtributo((String)$1);
+            }
+                if(nodo == null && metodoAtual != null)
+                {
+                    nodo = metodoAtual.pesquisaVarLocal((String)$1);
+                    if(nodo == null)
+                    {
+                        nodo = metodoAtual.pesquisaParametro((String)$1);
+                        if(nodo == null) {
+                          yyerror("(sem) variável ou atributo <" + $1 + "> não declarado(a) ou fora do escopo");
+                        }
+                    }
+                }
+            atributoAtual = nodo;
+            tipoBaseAtual = null;
+          
+          } arrayOuNaoAtrib '=' exp {
+          
+
+          if(atributoAtual != null && atribuendoehArray && atributoAtual.getTipo() == Tp_ARRAY) {
+            if(tipoBaseAtual != null) {
+              validaTipo('=', atributoAtual.getTipoBase(), tipoBaseAtual);
+            } else {
+              validaTipo('=', atributoAtual.getTipoBase(), (TS_entry)$5);
+            }
           }
-          if(nodo != null && atribuendoehArray && nodo.getTipo() == Tp_ARRAY) {
-            validaTipo('=', nodo.getTipoBase(), (TS_entry)$5);
+          else if(atributoAtual != null) {
+            if(tipoBaseAtual != null && atributoAtual.getTipo() == Tp_ARRAY && (TS_entry)$5 == Tp_ARRAY) {
+              validaTipo('=', atributoAtual.getTipoBase(), tipoBaseAtual);
+            } else if(tipoBaseAtual != null){
+              validaTipo('=', atributoAtual.getTipo(), tipoBaseAtual);
+            } else {
+              validaTipo('=', atributoAtual.getTipo(), (TS_entry)$5);
+            }
           }
-          else if(nodo != null) {
-            validaTipo('=', nodo.getTipo(), (TS_entry)$5);
-          }
+          atributoAtual = null;
         } ;
+
+  arrayOuNaoAtrib: '[' NUM ']' {
+    
+    atribuendoehArray = true;
+    if(atributoAtual != null && atributoAtual.getTipo() != Tp_ARRAY) {
+      yyerror("(sem) variavel não é indexada");
+    }
+    
+  }
+  |
+  ;
 
  escrita: ESCREVA restoEscrita ;
 
@@ -347,8 +399,10 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
 	;
 
  leia: LEIA ID {
-          TS_entry nodo;
-          nodo = classeAtual.pesquisaAtributo((String)$2);
+          TS_entry nodo = null;
+          if(!toNaMain) {
+            nodo = classeAtual.pesquisaAtributo((String)$2);
+          }
           if(nodo == null && metodoAtual != null)
           {
               nodo = metodoAtual.pesquisaVarLocal((String)$2);
@@ -407,6 +461,9 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                   }
               }
           }
+          if(!nodo.getInstanciado()){
+            yyerror("(sem) objeto não instanciado");
+          }
 
           if(nodo != null) {
             if(nodo.getTipo().getTipo() == Tp_OBJETO){
@@ -447,6 +504,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
      } else {
        $$ = Tp_CONSTRUTOR;
        classeConstrutor = classe;
+       atributoAtual.setInstanciado(true);
      }
    }
  };
@@ -485,6 +543,8 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   private TS_entry arrayAtual = null;
   private int nReturns = 0;
   private boolean foiArray = false;
+  private TS_entry atributoAtual = null;
+  private boolean toNaMain = false;
   
 
 
@@ -554,7 +614,7 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
   public void listarTS() { ts.listar();}
 
   public static void main(String args[]) throws IOException {
-    System.out.println("\n\nVerificador semantico simples\n");
+    System.out.println("\n\nVerificador semantico AJava\n");
     
 
     Parser yyparser;
@@ -658,37 +718,42 @@ exp: exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " && "+B.getTipoStr());
+                      break;
 
               case OR:
                      if (A == Tp_BOOLEAN && B == Tp_BOOLEAN)
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " || "+B.getTipoStr());
+                      break;
 
                case EQ:
                      if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " == "+B.getTipoStr());
+                      break;
 
                 case NEQ:
                      if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " != "+B.getTipoStr());
+                      break;
 
                 case LEQ:
                      if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " <= "+B.getTipoStr());
+                      break;
 
                 case GEQ:
                      if (((A == Tp_INT || A == Tp_DOUBLE) && (B == Tp_INT || B == Tp_DOUBLE)) || (A == Tp_LITERAL && B == Tp_LITERAL) || (A == Tp_BOOLEAN && B == Tp_BOOLEAN))
                          return Tp_BOOLEAN;
                       else
                         yyerror("(sem) tipos incomp. para op lógica: "+ A.getTipoStr() + " >= "+B.getTipoStr());
-                 break;
+                      break;
             }
             
 

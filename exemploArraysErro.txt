@@ -1,0 +1,27 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
+class Classe {
+    private:
+        int a[5];
+    public:
+
+        void main()
+            double b[20];
+            double c, d;
+            int x, y;
+            int z[4];
+        {
+            a[1] = x;
+            b[1] = c;
+            c = z[1];
+            a = b;
+            z = a;
+            x = b[1];
+            x = a[1] + z[3];
+            b = a[1] / z[3];
+        }
+}

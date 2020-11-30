@@ -1,3 +1,9 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
 import java.util.ArrayList;
 /**
  * Write a description of class Paciente here.
@@ -248,6 +254,17 @@ public class TS_entry
    public TS_entry pesquisaMetodo(String ass) {
       for(TS_entry e: this.metodos) {
          if(e.getAssinatura().equals(ass))
+         {
+            return e;
+         }
+      }
+
+      return null;
+   }
+
+   public TS_entry pesquisaMetodoId(String id) {
+      for(TS_entry e: this.metodos) {
+         if(e.getId().equals(id))
          {
             return e;
          }

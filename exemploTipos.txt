@@ -1,0 +1,92 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+
+class OutraClasse
+{
+	private:
+	public:
+		OutraClasse() {
+
+		}
+
+		string toString() {
+			return "";
+		}
+}
+
+class MinhaClasse 
+{
+	private:
+		int a;
+		double b;
+		string c;
+		boolean d;
+		OutraClasse e;
+
+	public:
+
+		MinhaClasse() {
+			a = 0;
+			b = 0.0;
+			b = 0;
+			c = "oi " + a;
+			d = false;
+			e = new OutraClasse();
+		}
+
+		string toString() {
+			return a + b + c + d + e.toString();
+		}
+
+		int getA() {
+			return a;
+		}
+
+		double getB() {
+			return b;
+		}
+
+		string getC() {
+			return c;
+		}
+
+		boolean getD() {
+			return d;
+		}
+
+		OutraClasse getE() {
+			return e;
+		}
+
+		void setA(int umA) {
+			a = umA;
+		}
+
+		void setB(double umB) {
+			b = umB;
+		}
+
+		void setC(string umC) {
+			c = umC;
+		}
+
+		void setD(boolean umD) {
+			d = umD;
+		}
+
+		void setE(OutraClasse umE) {
+			e = umE;
+		}
+
+		void main() 
+			int m;
+			OutraClasse l;
+		{
+			l = new OutraClasse();
+			Leia m;
+			Escreva l.toString();
+		}
+}

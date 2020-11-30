@@ -1,0 +1,92 @@
+/*
+  KIN MAX PIAMOLINI GUSMÃO - 16104046-4 - kin.gusmao@edu.pucrs.br
+  PEDRO FRATINI CHEM       - 18109228   - pedro.chem@edu.pucrs.br
+  YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
+*/
+/*DISCLAIMER: o código abaixo não faz sentido algum*/
+
+class Forma {
+    private:
+    public:
+        int metodoLouco() {
+            return 1;
+        }
+
+        boolean metodoSobrescrito() {
+            return false;
+        }
+}
+
+class Circulo extends Forma {
+    private:
+        int raio, a;
+        double cx, cy;
+        int raios[5];
+    public:
+        Circulo(int r, double x, double y) {
+            raio = r; cx = x; cy = y;
+        }
+
+        double area () {
+            return 3.1415 * raio * raio;
+        }
+
+        double area(double x) 
+            int arr[4];
+        {
+            a = 4;
+            raios[1] = 5;
+            for x = 7 ; x >= 7 ; x = x + 1 :
+                a = a + 1;
+                if a == 5 :
+                    return 1;
+                else :
+                    break;
+                endIf
+            endFor
+
+            while x < 7 :
+                x = x + 1;
+                if x == 8 :
+                    break;
+                endIf
+            endWhile
+            /* break; */
+            return x;
+        }
+
+        boolean metodoSobrescrito() {
+            return false;
+        }
+
+        int[] areas()
+            int as[5];
+        {
+            return as;
+        }
+
+        string toString()
+            string aux;
+        {		
+            aux = "circulo: raio: "+ raio +" ("+cx+", "+cy+")";
+            return aux;
+        }
+
+
+        void main()
+            Circulo c, cb;
+            boolean teste;
+            int arr[4];
+            int l;
+        {
+            c = new Circulo(10, 3.0, 4.0);
+            cb = new Circulo(10, 3.0, 4.0);
+
+            l = c.metodoLouco();
+            l = cb.metodoLouco();
+            teste = c.metodoSobrescrito();
+            Escreva c.toString();
+            Escreva "Area: ", c.area();
+            Leia l;
+        }
+ }
