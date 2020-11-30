@@ -20,7 +20,7 @@ YAGO DOS ANJOS VIEIRA    - 11203949-0 - yago.vieira@edu.pucrs.br
 %right '=' 
 %left OR
 %left AND
-%left  '>' '<' EQ LEQ GEQ NEQ 
+%nonassoc  '>' '<' EQ LEQ GEQ NEQ 
 %left '+' '-'
 %left '*' '/' '%'
 %left '!' 
